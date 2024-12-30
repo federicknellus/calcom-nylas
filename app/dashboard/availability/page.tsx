@@ -38,9 +38,13 @@ async function getData(userId: string) {
 }
 
 const AvailabilityPage = async () => {
-  const session = await requireUser();
-  const data = await getData(session.user?.id as string);
-
+  // const session = await requireUser();
+  // const data = await getData(session.user?.id as string);
+  const data = [{ id: 1, day: "Monday", isActive: true, fromTime: "09:00", tillTime: "17:00" },
+    { id: 2, day: "Tuesday", isActive: false, fromTime: "09:00", tillTime: "17:00" }
+  ]
+  
+  ;
   return (
     <Card>
       <CardHeader>

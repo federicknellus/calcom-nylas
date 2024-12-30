@@ -46,13 +46,13 @@ async function getData(id: string) {
 }
 
 export default async function Dashboard({ children }: { children: ReactNode }) {
-  const session = await auth();
+  // const session = await auth();
 
-  if (!session?.user) {
-    return redirect("/");
-  }
+  // if (!session?.user) {
+  //   return redirect("/");
+  // }
 
-  const data = await getData(session.user.id as string);
+  // const data = await getData(session.user.id as string);
 
   return (
     <>
@@ -103,13 +103,13 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                     size="icon"
                     className="rounded-full"
                   >
-                    <Image
+                    {/* <Image
                       src={session.user.image as string}
                       alt="Profile"
                       width={20}
                       height={20}
                       className="w-full h-full rounded-full"
-                    />
+                    /> */}
                     <span className="sr-only">Toggle user menu</span>
                   </Button>
                 </DropdownMenuTrigger>

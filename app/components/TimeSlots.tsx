@@ -26,35 +26,38 @@ async function getAvailability(selectedDate: Date, userName: string) {
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(selectedDate);
   endOfDay.setHours(23, 59, 59, 999);
-  const data = await prisma.availability.findFirst({
-    where: {
-      day: currentDay as Prisma.EnumDayFilter,
-      User: {
-        username: userName,
-      },
-    },
-    select: {
-      fromTime: true,
-      tillTime: true,
-      id: true,
-      User: {
-        select: {
-          grantEmail: true,
-          grantId: true,
-        },
-      },
-    },
-  });
+  // const data = await prisma.availability.findFirst({
+  //   where: {
+  //     day: currentDay as Prisma.EnumDayFilter,
+  //     User: {
+  //       username: userName,
+  //     },
+  //   },
+  //   select: {
+  //     fromTime: true,
+  //     tillTime: true,
+  //     id: true,
+  //     User: {
+  //       select: {
+  //         grantEmail: true,
+  //         grantId: true,
+  //       },
+  //     },
+  //   },
+  // });
+  const data = {fromTime: "09:00", tillTime: "17:00", id: 1,User: {grantEmail: "email", grantId: "id"}}
 
-  const nylasCalendarData = await nylas.calendars.getFreeBusy({
-    identifier: data?.User.grantId as string,
-    requestBody: {
-      startTime: Math.floor(startOfDay.getTime() / 1000),
-      endTime: Math.floor(endOfDay.getTime() / 1000),
-      emails: [data?.User.grantEmail as string],
-    },
-  });
+  // const nylasCalendarData = await nylas.calendars.getFreeBusy({
+  //   identifier: data?.User.grantId as string,
+  //   requestBody: {
+  //     startTime: Math.floor(startOfDay.getTime() / 1000),
+  //     endTime: Math.floor(endOfDay.getTime() / 1000),
+  //     emails: [data?.User.grantEmail as string],
+  //   },
+  // });
 
+  const nylasCalendarData = [{id: 1, description: "description", title: "title", duration: 30, videoCallSoftware: "zoom", user: {}}]
+  
   return { data, nylasCalendarData };
 }
 
