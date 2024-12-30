@@ -4,7 +4,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTrigger,
+  DialogTitle
 } from "@/components/ui/dialog";
+
+import { VisuallyHidden } from "react-aria";
 
 import Logo from "@/public/logo.png";
 import Image from "next/image";
@@ -18,23 +21,23 @@ export function AuthModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Try for Free</Button>
+        <Button>Provalo Gratis</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
           <Image src={Logo} className="size-10" alt="Logo" />
-          <h4 className="text-3xl font-semibold">
-            Cal<span className="text-primary">Marshal</span>
-          </h4>
+          <DialogTitle className="text-3xl font-semibold">
+            Zen<span className="text-primary">Cal</span>
+          </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-3 mt-5">
-          <form
-            className="w-full"
-            action={async () => {
-              "use server";
-              await signIn("google");
-            }}
-          >
+          <div className="flex flex-col gap-3 mt-5">
+            <form
+              className="w-full"
+              action={async () => {
+                "use server";
+                await signIn("google");
+              }}
+            >
             <GoogleAuthButton />
           </form>
 

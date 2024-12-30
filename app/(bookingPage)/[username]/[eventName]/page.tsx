@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db";
 import { format } from "date-fns";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
@@ -14,41 +14,41 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 async function getData(username: string, eventName: string) {
-  // const eventType = await prisma.eventType.findFirst({
-  //   where: {
-  //     url: eventName,
-  //     user: {
-  //       username: username,
-  //     },
-  //     active: true,
-  //   },
-  //   select: {
-  //     id: true,
-  //     description: true,
-  //     title: true,
-  //     duration: true,
-  //     videoCallSoftware: true,
+  const eventType = await prisma.eventType.findFirst({
+    where: {
+      url: eventName,
+      user: {
+        username: username,
+      },
+      active: true,
+    },
+    select: {
+      id: true,
+      description: true,
+      title: true,
+      duration: true,
+      videoCallSoftware: true,
 
-  //     user: {
-  //       select: {
-  //         image: true,
-  //         name: true,
-  //         Availability: {
-  //           select: {
-  //             day: true,
-  //             isActive: true,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // });
+      user: {
+        select: {
+          image: true,
+          name: true,
+          Availability: {
+            select: {
+              day: true,
+              isActive: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  // if (!eventType) {
-  //   return notFound();
-  // }
-  return {id: 1, description: "description", title: "title", duration: 30, videoCallSoftware: "zoom", user: {}}
-  // return eventType;
+  if (!eventType) {
+    return notFound();
+  }
+  
+  return eventType;
 }
 
 const BookingPage = async ({

@@ -37,20 +37,30 @@ async function getData(userId: string) {
   return data;
 }
 
+function translateDayToItalian(day: string): string {
+  const translations: { [key: string]: string } = {
+    Monday: "Lunedì",
+    Tuesday: "Martedì",
+    Wednesday: "Mercoledì",
+    Thursday: "Giovedì",
+    Friday: "Venerdì",
+    Saturday: "Sabato",
+    Sunday: "Domenica",
+  };
+  return translations[day] || day; // Fallback to the original day if not found
+}
+
 const AvailabilityPage = async () => {
-  // const session = await requireUser();
-  // const data = await getData(session.user?.id as string);
-  const data = [{ id: 1, day: "Monday", isActive: true, fromTime: "09:00", tillTime: "17:00" },
-    { id: 2, day: "Tuesday", isActive: false, fromTime: "09:00", tillTime: "17:00" }
-  ]
+  const session = await requireUser();
+  const data = await getData(session.user?.id as string);
   
   ;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Availability</CardTitle>
+        <CardTitle>Disponibilità</CardTitle>
         <CardDescription>
-          In this section you can manage your availability.
+          In questa sezione puoi impostare la tua disponibilità per i tuoi
         </CardDescription>
       </CardHeader>
       <form action={updateAvailabilityAction}>
@@ -66,11 +76,11 @@ const AvailabilityPage = async () => {
                   name={`isActive-${item.id}`}
                   defaultChecked={item.isActive}
                 />
-                <p>{item.day}</p>
+                <p>{translateDayToItalian(item.day)}</p>
               </div>
               <Select name={`fromTime-${item.id}`} defaultValue={item.fromTime}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="From Time" />
+                  <SelectValue placeholder="Da" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -84,7 +94,7 @@ const AvailabilityPage = async () => {
               </Select>
               <Select name={`tillTime-${item.id}`} defaultValue={item.tillTime}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="To Time" />
+                  <SelectValue placeholder="A" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -100,7 +110,7 @@ const AvailabilityPage = async () => {
           ))}
         </CardContent>
         <CardFooter>
-          <SubmitButton text="Save Changes" />
+          <SubmitButton text="Salva" />
         </CardFooter>
       </form>
     </Card>

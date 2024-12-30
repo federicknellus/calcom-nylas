@@ -9,25 +9,25 @@ import React from "react";
 export const dashboardLinks = [
   {
     id: 0,
-    name: "Event Types",
+    name: "Eventi",
     href: "/dashboard",
     icon: HomeIcon,
   },
   {
     id: 1,
-    name: "Meetings",
+    name: "Meeting",
     href: "/dashboard/meetings",
     icon: Users2,
   },
   {
     id: 2,
-    name: "Availablity",
+    name: "Disponibiltà",
     href: "/dashboard/availability",
     icon: CalendarCheck,
   },
   {
     id: 3,
-    name: "Settings",
+    name: "Impostazioni",
     href: "/dashboard/settings",
     icon: Settings,
   },

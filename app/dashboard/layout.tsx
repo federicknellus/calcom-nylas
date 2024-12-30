@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from "@/components/ui/sheet";
 import { ReactNode } from "react";
 import { requireUser } from "../lib/hooks";
 import prisma from "../lib/db";
@@ -29,30 +29,30 @@ async function getData(id: string) {
       id: id,
     },
     select: {
-      username: true,
+      username: true, 
       grantId: true,
     },
   });
 
-  if (!data?.username) {
-    return redirect("/onboarding");
-  }
+  // if (!data?.username) {
+  //   return redirect("/onboarding");
+  // }
 
-  if (!data.grantId) {
-    return redirect("/onboarding/grant-id");
-  }
+  // if (!data.grantId) {
+  //   return redirect("/onboarding/grant-id");
+  // }
 
   return data;
 }
 
 export default async function Dashboard({ children }: { children: ReactNode }) {
-  // const session = await auth();
+  const session = await auth();
 
-  // if (!session?.user) {
-  //   return redirect("/");
-  // }
+  if (!session?.user) {
+    return redirect("/");
+  }
 
-  // const data = await getData(session.user.id as string);
+  const data = await getData(session.user.id as string);
 
   return (
     <>
@@ -63,7 +63,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
               <Link href="/" className="flex items-center gap-2 font-semibold">
                 <Image src={Logo} alt="Logo" className="size-6" />
                 <p className="text-xl font-bold">
-                  Cal<span className="text-primary">Marshal</span>
+                  Zen<span className="text-primary">Cal</span>
                 </p>
               </Link>
             </div>
@@ -78,6 +78,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
           <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
             <Sheet>
               <SheetTrigger asChild>
+                
                 <Button
                   variant="outline"
                   size="icon"
@@ -88,10 +89,22 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
+                <SheetHeader>
+                <SheetTitle>
+                  <Link href="/" className="flex items-center gap-2 font-semibold">
+                    <Image src={Logo} alt="Logo" className="size-6" />
+                    <p className="text-xl font-bold">
+                      Zen<span className="text-primary">Cal</span>
+                    </p>
+                  </Link>
+                </SheetTitle>
+                </SheetHeader>
                 <nav className="grid gap-2 mt-10">
                   <DasboardLinks />
                 </nav>
+                
               </SheetContent>
+
             </Sheet>
 
             <div className="ml-auto flex items-center gap-x-4">
@@ -103,21 +116,21 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                     size="icon"
                     className="rounded-full"
                   >
-                    {/* <Image
+                    <Image
                       src={session.user.image as string}
                       alt="Profile"
                       width={20}
                       height={20}
                       className="w-full h-full rounded-full"
-                    /> */}
+                    />
                     <span className="sr-only">Toggle user menu</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>Profilo</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings">Settings</Link>
+                    <Link href="/dashboard/settings">Impostazioni</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <form
@@ -127,7 +140,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                         await signOut();
                       }}
                     >
-                      <button className="w-full text-left">Log out</button>
+                      <button className="w-full text-left">Esci</button>
                     </form>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

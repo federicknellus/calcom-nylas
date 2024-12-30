@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import prisma from "@/lib/prisma";
+import prisma from "@/app/lib/db";
 import { format, fromUnixTime } from "date-fns";
 import { Icon, Video } from "lucide-react";
 

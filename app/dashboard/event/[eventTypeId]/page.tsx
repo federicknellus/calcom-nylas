@@ -4,26 +4,23 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 async function getData(eventTypeId: string) {
-  //TODO ho commentato
-  // const data = await prisma.eventType.findUnique({
-  //   where: {
-  //     id: eventTypeId,
-  //   },
-  //   select: {
-  //     title: true,
-  //     description: true,
-  //     duration: true,
-  //     url: true,
-  //     id: true,
-  //     videoCallSoftware: true,
-  //   },
-  // });
+  const data = await prisma.eventType.findUnique({
+    where: {
+      id: eventTypeId,
+    },
+    select: {
+      title: true,
+      description: true,
+      duration: true,
+      url: true,
+      id: true,
+      videoCallSoftware: true,
+    },
+  });
 
-  // if (!data) {
-  //   return notFound();
-  // }
-  console.log(eventTypeId)
-  const data = {description: "description", duration: 30, title: "title", url: "url", id: "1", videoCallSoftware: "zoom"}
+  if (!data) {
+    return notFound();
+  }
   return data;
 }
 const EditEventTypePage = async ({

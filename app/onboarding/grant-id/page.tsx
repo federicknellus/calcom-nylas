@@ -17,9 +17,9 @@ const GrantIdRoute = () => {
     <div className="min-h-screen w-screen flex items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>You Are Almost Done!</CardTitle>
+          <CardTitle>Ci sei quasi!</CardTitle>
           <CardDescription>
-            We have to now connect your calendar to your account.
+            Ora dobbiamo solo collegare il tuo calendario al tuo account.
           </CardDescription>
           <Image
             src={AlmostFinished}
@@ -31,7 +31,7 @@ const GrantIdRoute = () => {
           <Button asChild className="w-full">
             <Link href="/api/auth">
               <CalendarCheck2 className="size-4 mr-2" />
-              Connect Calender to Account
+              Collega il tuo calendario
             </Link>
           </Button>
         </CardContent>

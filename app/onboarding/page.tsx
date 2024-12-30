@@ -38,37 +38,37 @@ const OnboardingPage = () => {
     <div className="h-screen w-screen flex items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>Welcome to CalMarshal</CardTitle>
+          <CardTitle className="inline-flex">Benvenuto su Zen<p className="text-primary">Cal</p></CardTitle>
           <CardDescription>
-            We need the following information to set up your profile
+            Facci sapere qualcosa di te per iniziare
           </CardDescription>
         </CardHeader>
 
         <form id={form.id} onSubmit={form.onSubmit} action={action} noValidate>
           <CardContent className="flex flex-col gap-y-5">
             <div className="grid gap-y-2">
-              <Label>Full Name</Label>
+              <Label>Nome</Label>
               <Input
                 name={fields.fullName.name}
                 defaultValue={fields.fullName.initialValue}
                 key={fields.fullName.key}
-                placeholder="Jan marshal"
+                placeholder="Mario Rossi"
               />
               <p className="text-red-500 text-sm">{fields.fullName.errors}</p>
             </div>
             <div className="grid gap-y-2">
-              <Label>Username</Label>
+              <Label>Nickname</Label>
 
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                  ZenCal.it/
                 </span>
                 <Input
                   type="text"
                   key={fields.username.key}
                   defaultValue={fields.username.initialValue}
                   name={fields.username.name}
-                  placeholder="example-user-1"
+                  placeholder="MarioRossi2000"
                   className="rounded-l-none"
                 />
               </div>
