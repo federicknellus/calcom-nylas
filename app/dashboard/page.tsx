@@ -58,19 +58,19 @@ const DashbaordPage = async () => {
     <>
       <div className="flex items-center justify-between px-2">
         <div className="sm:grid gap-1 hidden">
-          <h1 className="font-heading text-3xl md:text-4xl">Event Types</h1>
+          <h1 className="font-heading text-3xl md:text-4xl">Tipologia Evento</h1>
           <p className="text-lg text-muted-foreground">
-            Create and manage your event types.
+            Crea e gestisci i tuoi eventi
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/new">Create New Event</Link>
+          <Link href="/dashboard/new">Crea nuova tipologia di evento</Link>
         </Button>
       </div>
       {data.EventType.length === 0 ? (
         <EmptyState
-          title="You have no Event Types"
-          description="You can create your first event type by clicking the button below."
+          title="Non hai ancora creato nessun evento"
+          description="Puoi creare un evento per condividere con i tuoi clienti"
           buttonText="Add Event Type"
           href="/dashboard/new"
         />
@@ -89,13 +89,13 @@ const DashbaordPage = async () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-20" align="end">
-                    <DropdownMenuLabel>Event</DropdownMenuLabel>
+                    <DropdownMenuLabel>Evento</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
                         <Link href={`/${data.username}/${item.url}`}>
                           <ExternalLink className="mr-2 h-4 w-4" />
-                          <span>Preview</span>
+                          <span>Anteprima</span>
                         </Link>
                       </DropdownMenuItem>
                       <CopyLinkMenuItem
@@ -104,7 +104,7 @@ const DashbaordPage = async () => {
                       <DropdownMenuItem asChild>
                         <Link href={`/dashboard/event/${item.id}`}>
                           <Pen className="mr-2 h-4 w-4" />
-                          <span>Edit</span>
+                          <span>Modifica</span>
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -112,7 +112,7 @@ const DashbaordPage = async () => {
                     <DropdownMenuItem asChild>
                       <Link href={`/dashboard/event/${item.id}/delete`}>
                         <Trash className="mr-2 h-4 w-4" />
-                        <span>Delete</span>
+                        <span>Elimina</span>
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -128,7 +128,7 @@ const DashbaordPage = async () => {
                     <div className="ml-5 w-0 flex-1">
                       <dl>
                         <dt className="text-sm font-medium truncate ">
-                          {item.duration} Minutes Meeting
+                          {item.duration} Incontro
                         </dt>
                         <dd>
                           <div className="text-lg font-medium ">
@@ -147,7 +147,7 @@ const DashbaordPage = async () => {
                 />
 
                 <Link href={`/dashboard/event/${item.id}`}>
-                  <Button className="">Edit Event</Button>
+                  <Button className="">Modifica Evento</Button>
                 </Link>
               </div>
             </div>

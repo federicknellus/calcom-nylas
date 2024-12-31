@@ -156,6 +156,8 @@ export async function CreateEventTypeAction(
 export async function EditEventTypeAction(prevState: any, formData: FormData) {
   const session = await requireUser();
 
+  const originalUrl = formData.get("originalUrl") as string;
+
   const submission = await parseWithZod(formData, {
     schema: EventTypeServerSchema({
       async isUrlUnique() {
@@ -167,6 +169,7 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
         });
         return !data;
       },
+      originalUrl,
     }),
 
     async: true,

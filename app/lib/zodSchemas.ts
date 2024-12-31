@@ -82,14 +82,22 @@ export const eventTypeSchema = z.object({
     .nonempty({ message: "Il software per le videochiamate è obbligatorio" }),
 });
 
-export function EventTypeServerSchema(options?: { isUrlUnique: () => Promise<boolean> }) {
+export function EventTypeServerSchema(options?: { 
+  isUrlUnique: () => Promise<boolean>; 
+  originalUrl?: string; 
+}) {
   return z.object({
     url: z
       .string()
       .min(3, { message: "Almeno 3 caratteri" })
       .max(150, { message: "Non puoi superare i 150 caratteri" })
       .pipe(
-        z.string().superRefine((_, ctx) => {
+        z.string().superRefine((value, ctx) => {
+          if (options?.originalUrl === value) {
+            // If the URL has not changed, skip the uniqueness check
+            return;
+          }
+
           if (typeof options?.isUrlUnique !== "function") {
             ctx.addIssue({
               code: "custom",
@@ -120,9 +128,10 @@ export function EventTypeServerSchema(options?: { isUrlUnique: () => Promise<boo
     description: z
       .string()
       .min(3, { message: "Almeno 3 caratteri" })
-    .max(150, { message: "Non puoi superare i 150 caratteri" }),
+      .max(150, { message: "Non puoi superare i 150 caratteri" }),
     videoCallSoftware: z
       .string()
       .nonempty({ message: "Richiesto" }),
   });
 }
+

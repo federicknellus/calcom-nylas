@@ -28,7 +28,8 @@ const EditEventTypePage = async ({
 }: {
   params: { eventTypeId: string };
 }) => {
-  const data = await getData(params.eventTypeId);
+  const { eventTypeId } = await Promise.resolve(params);
+  const data = await getData(eventTypeId);
 
   return (
     <EditEventTypeForm

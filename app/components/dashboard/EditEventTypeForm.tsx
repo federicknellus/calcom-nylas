@@ -71,6 +71,7 @@ export function EditEventTypeForm({
   const togglePlatform = (platform: Platform) => {
     setActivePlatform(platform);
   };
+  
   return (
     <div className="h-full w-full flex-1 flex flex-col items-center justify-center">
       <Card>
@@ -82,6 +83,7 @@ export function EditEventTypeForm({
         </CardHeader>
         <form noValidate id={form.id} onSubmit={form.onSubmit} action={action}>
           <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="originalUrl" value={url} />
           <CardContent className="grid gap-y-5">
             <div className="flex flex-col gap-y-2">
               <Label>Titolo</Label>
@@ -95,7 +97,7 @@ export function EditEventTypeForm({
             </div>
 
             <div className="grid gap-y-2 ">
-              <Label>Url</Label>
+              <Label>Link</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
                   ZenCal.it/
