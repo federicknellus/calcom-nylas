@@ -1,24 +1,17 @@
 import { z } from "zod";
 import { conformZodMessage } from "@conform-to/zod";
 
-export function onboardingSchema(options?: {
-  isUsernameUnique: () => Promise<boolean>;
-}) {
+export function onboardingSchema(options?: { isUsernameUnique: () => Promise<boolean> }) {
   return z.object({
     username: z
       .string()
-      .min(3)
-      .max(150)
+      .min(3, { message: "Il Nickname deve contenere almeno 3 caratteri" })
+      .max(150, { message: "Il Nickname non può superare i 150 caratteri" })
       .regex(/^[a-zA-Z0-9-]+$/, {
-        message: "Username must contain only letters, numbers, and hyphens",
+        message: "Il Nickname deve contenere solo lettere, numeri e -",
       })
-      // Pipe the schema so it runs only if the email is valid
       .pipe(
-        // Note: The callback cannot be async here
-        // As we run zod validation synchronously on the client
         z.string().superRefine((_, ctx) => {
-          // This makes Conform to fallback to server validation
-          // by indicating that the validation is not defined
           if (typeof options?.isUsernameUnique !== "function") {
             ctx.addIssue({
               code: "custom",
@@ -28,61 +21,75 @@ export function onboardingSchema(options?: {
             return;
           }
 
-          // If it reaches here, then it must be validating on the server
-          // Return the result as a promise so Zod knows it's async instead
           return options.isUsernameUnique().then((isUnique) => {
             if (!isUnique) {
               ctx.addIssue({
                 code: "custom",
-                message: "Username is already used",
+                message: "Questo Username è già in uso",
               });
             }
           });
         })
       ),
-    fullName: z.string().min(3).max(150),
+    fullName: z
+      .string()
+      .min(3, { message: "Almeno 3 caratteri" })
+      .max(150, { message: "Non puoi superare i 150 caratteri" }),
   });
 }
 
 export const onboardingSchemaLocale = z.object({
   username: z
     .string()
-    .min(3)
-    .max(150)
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" })
     .regex(/^[a-zA-Z0-9-]+$/, {
-      message: "Username must contain only letters, numbers, and hyphens",
+      message: "Solo lettere, numeri e -",
     }),
-  fullName: z.string().min(3).max(150),
+  fullName: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
 });
 
 export const aboutSettingsSchema = z.object({
-  fullName: z.string().min(3).max(150),
-
-  profileImage: z.string(),
+  fullName: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
+  profileImage: z.string().nonempty({ message: "L'immagine del profilo è obbligatoria" }),
 });
 
 export const eventTypeSchema = z.object({
-  title: z.string().min(3).max(150),
-  duration: z.number().min(1).max(100),
-  url: z.string().min(3).max(150),
-  description: z.string().min(3).max(300),
-  videoCallSoftware: z.string(),
+  title: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
+  duration: z
+    .number()
+    .min(1, { message: "La durata minima è di 1 minuto" })
+    .max(100, { message: "La durata massima è di 100 minuti" }),
+  url: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
+  description: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 300 caratteri" }),
+  videoCallSoftware: z
+    .string()
+    .nonempty({ message: "Il software per le videochiamate è obbligatorio" }),
 });
 
-export function EventTypeServerSchema(options?: {
-  isUrlUnique: () => Promise<boolean>;
-}) {
+export function EventTypeServerSchema(options?: { isUrlUnique: () => Promise<boolean> }) {
   return z.object({
     url: z
       .string()
-      .min(3)
-      .max(150)
+      .min(3, { message: "Almeno 3 caratteri" })
+      .max(150, { message: "Non puoi superare i 150 caratteri" })
       .pipe(
-        // Note: The callback cannot be async here
-        // As we run zod validation synchronously on the client
         z.string().superRefine((_, ctx) => {
-          // This makes Conform to fallback to server validation
-          // by indicating that the validation is not defined
           if (typeof options?.isUrlUnique !== "function") {
             ctx.addIssue({
               code: "custom",
@@ -92,21 +99,30 @@ export function EventTypeServerSchema(options?: {
             return;
           }
 
-          // If it reaches here, then it must be validating on the server
-          // Return the result as a promise so Zod knows it's async instead
           return options.isUrlUnique().then((isUnique) => {
             if (!isUnique) {
               ctx.addIssue({
                 code: "custom",
-                message: "Url is already used",
+                message: "Questo URL è già in uso",
               });
             }
           });
         })
       ),
-    title: z.string().min(3).max(150),
-    duration: z.number().min(1).max(100),
-    description: z.string().min(3).max(300),
-    videoCallSoftware: z.string(),
+    title: z
+      .string()
+      .min(3, { message: "Almeno 3 caratteri" })
+      .max(150, { message: "Non puoi superare i 150 caratteri" }),
+    duration: z
+      .number()
+      .min(1, { message: "La durata minima è di 1 minuto" })
+      .max(100, { message: "Più di 100 non si può" }),
+    description: z
+      .string()
+      .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
+    videoCallSoftware: z
+      .string()
+      .nonempty({ message: "Richiesto" }),
   });
 }

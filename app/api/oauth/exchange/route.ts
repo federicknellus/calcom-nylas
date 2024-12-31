@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const code = url.searchParams.get("code");
 
   if (!code) {
-    return Response.json("No authorization code returned from Nylas", {
+    return Response.json("Non siamo stati autorizzati da Nylas", {
       status: 400,
     });
   }
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     console.log({ grantId });
   } catch (error) {
-    console.error("Error exchanging code for token:", error);
+    console.error("Errore, nessun token per codice:", error);
   }
 
   redirect("/dashboard");

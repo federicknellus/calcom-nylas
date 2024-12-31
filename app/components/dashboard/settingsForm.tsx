@@ -56,24 +56,24 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Settings</CardTitle>
-        <CardDescription>Manage your account settings.</CardDescription>
+        <CardTitle>Impostazioni</CardTitle>
+        <CardDescription>Gestisci le tue impostazioni</CardDescription>
       </CardHeader>
       <form noValidate id={form.id} onSubmit={form.onSubmit} action={action}>
         <CardContent className="flex flex-col gap-y-4">
           <div className="flex flex-col gap-y-2">
-            <Label>Full Name</Label>
+            <Label>Nome</Label>
             <Input
               name={fields.fullName.name}
               key={fields.fullName.key}
-              placeholder="Jan Marshall"
+              placeholder="Mario Rossi"
               defaultValue={fullName}
             />
             <p className="text-red-500 text-sm">{fields.fullName.errors}</p>
           </div>
           <div className="flex flex-col gap-y-2">
             <Label>Email</Label>
-            <Input disabled placeholder="Jan Marshall" defaultValue={email} />
+            <Input disabled placeholder="Mario Rossi" defaultValue={email} />
           </div>
 
           <div className="grid gap-y-5">
@@ -98,7 +98,7 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
                   onClick={handleDeleteImage}
                   variant="destructive"
                   size="icon"
-                  className="absolute -top-3 -right-3"
+                  className="absolute -top-3 -right-3 size-6"
                 >
                   <X className="size-4" />
                 </Button>
@@ -111,7 +111,7 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
                 }}
                 onClientUploadComplete={(res) => {
                   setCurrentProfileImage(res[0].url);
-                  toast.success("Profile image uploaded");
+                  toast.success("Immagine profilo caricata con successo");
                 }}
                 onUploadError={(error) => {
                   toast.error(error.message);
@@ -122,7 +122,7 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
           </div>
         </CardContent>
         <CardFooter>
-          <SubmitButton text="Save Changes" />
+          <SubmitButton text="Salva" />
         </CardFooter>
       </form>
     </Card>

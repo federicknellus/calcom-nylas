@@ -15,7 +15,7 @@ import Link from "next/link";
 const GrantIdRoute = () => {
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
-      <Card>
+      <Card className="m-4">
         <CardHeader>
           <CardTitle>Ci sei quasi!</CardTitle>
           <CardDescription>

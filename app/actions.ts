@@ -87,7 +87,7 @@ export async function onboardingAction(prevState: any, formData: FormData) {
     },
   });
 
-  return redirect("/onboarding/grant-id");
+  return redirect("/dashboard");
 }
 
 export async function SettingsAction(prevState: any, formData: FormData) {
@@ -232,12 +232,12 @@ export async function updateEventTypeStatusAction(
     revalidatePath(`/dashboard`);
     return {
       status: "success",
-      message: "EventType Status updated successfully",
+      message: "Tipo Evento aggiornato con successo",
     };
   } catch (error) {
     return {
       status: "error",
-      message: "Something went wrong",
+      message: "Qualcosa è andato storto",
     };
   }
 }
@@ -273,10 +273,10 @@ export async function updateAvailabilityAction(formData: FormData) {
     );
 
     revalidatePath("/dashboard/availability");
-    return { status: "success", message: "Availability updated successfully" };
+    return { status: "success", message: "Disponibilità modificate con successo" };
   } catch (error) {
-    console.error("Error updating availability:", error);
-    return { status: "error", message: "Failed to update availability" };
+    console.error("Errore nel modificare le disponibilità:", error);
+    return { status: "error", message: "Non siamo riusciti a modificare le disponibilità" };
   }
 }
 

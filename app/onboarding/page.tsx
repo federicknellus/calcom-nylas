@@ -12,14 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";
 import { SubmitButton } from "../components/SubmitButton";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { parseWithZod } from "@conform-to/zod";
 import { onboardingSchemaLocale } from "../lib/zodSchemas";
 import { useForm } from "@conform-to/react";
 import { onboardingAction } from "../actions";
 
 const OnboardingPage = () => {
-  const [lastResult, action] = useFormState(onboardingAction, undefined);
+  const [lastResult, action] = useActionState(onboardingAction, undefined);
   const [form, fields] = useForm({
     // Sync the result of last submission
     lastResult,
@@ -36,7 +36,7 @@ const OnboardingPage = () => {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center">
-      <Card>
+      <Card className="min-w-[400px]">
         <CardHeader>
           <CardTitle className="inline-flex">Benvenuto su Zen<p className="text-primary">Cal</p></CardTitle>
           <CardDescription>
@@ -54,7 +54,7 @@ const OnboardingPage = () => {
                 key={fields.fullName.key}
                 placeholder="Mario Rossi"
               />
-              <p className="text-red-500 text-sm">{fields.fullName.errors}</p>
+              <p className="text-red-500 text-sm contain-inline-size">{fields.fullName.errors}</p>
             </div>
             <div className="grid gap-y-2">
               <Label>Nickname</Label>
@@ -72,7 +72,7 @@ const OnboardingPage = () => {
                   className="rounded-l-none"
                 />
               </div>
-              <p className="text-red-500 text-sm">{fields.username.errors}</p>
+              <p className="text-red-500 text-sm contain-inline-size">{fields.username.errors}</p>
             </div>
           </CardContent>
           <CardFooter className="w-full">

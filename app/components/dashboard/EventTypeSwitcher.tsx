@@ -3,7 +3,7 @@
 import { updateEventTypeStatusAction } from "@/app/actions";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useTransition } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { toast } from "sonner";
 
 export function MenuActiveSwitcher({
@@ -14,7 +14,7 @@ export function MenuActiveSwitcher({
   initialChecked: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [state, action] = useFormState(updateEventTypeStatusAction, undefined);
+  const [state, action] = useActionState(updateEventTypeStatusAction, undefined);
 
   useEffect(() => {
     if (state?.status === "success") {

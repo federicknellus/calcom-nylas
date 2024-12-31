@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { SubmitButton } from "../SubmitButton";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { eventTypeSchema } from "@/app/lib/zodSchemas";
@@ -50,7 +50,7 @@ export function EditEventTypeForm({
   callProvider,
   id,
 }: iAppProps) {
-  const [lastResult, action] = useFormState(EditEventTypeAction, undefined);
+  const [lastResult, action] = useActionState(EditEventTypeAction, undefined);
   const [form, fields] = useForm({
     // Sync the result of last submission
     lastResult,
@@ -75,21 +75,21 @@ export function EditEventTypeForm({
     <div className="h-full w-full flex-1 flex flex-col items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>Add new appointment type</CardTitle>
+          <CardTitle>Aggiungi appuntamento</CardTitle>
           <CardDescription>
-            Create a new appointment type that allows people to book times.
+            Aggiungi una tipologia di evento da condividere ai tuoi clienti!
           </CardDescription>
         </CardHeader>
         <form noValidate id={form.id} onSubmit={form.onSubmit} action={action}>
           <input type="hidden" name="id" value={id} />
           <CardContent className="grid gap-y-5">
             <div className="flex flex-col gap-y-2">
-              <Label>Title</Label>
+              <Label>Titolo</Label>
               <Input
                 name={fields.title.name}
                 key={fields.title.key}
                 defaultValue={title}
-                placeholder="30 min meeting"
+                placeholder="30 min incontro"
               />
               <p className="text-red-500 text-sm">{fields.title.errors}</p>
             </div>
@@ -98,7 +98,7 @@ export function EditEventTypeForm({
               <Label>Url</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                  ZenCal.it/
                 </span>
                 <Input
                   type="text"
@@ -114,12 +114,12 @@ export function EditEventTypeForm({
             </div>
 
             <div className="grid gap-y-2">
-              <Label>Description</Label>
+              <Label>Descrizione</Label>
               <Textarea
                 name={fields.description.name}
                 key={fields.description.key}
                 defaultValue={description}
-                placeholder="30 min meeting"
+                placeholder="30 min incontro"
               />
               <p className="text-red-500 text-sm">
                 {fields.description.errors}
@@ -127,22 +127,22 @@ export function EditEventTypeForm({
             </div>
 
             <div className="grid gap-y-2">
-              <Label>Duration</Label>
+              <Label>Durata</Label>
               <Select
                 name={fields.duration.name}
                 key={fields.duration.key}
                 defaultValue={String(duration)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select the duration" />
+                  <SelectValue placeholder="Seleziona la durata" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Duration</SelectLabel>
-                    <SelectItem value="15">15 Mins</SelectItem>
-                    <SelectItem value="30">30 Min</SelectItem>
-                    <SelectItem value="45">45 Mins</SelectItem>
-                    <SelectItem value="60">1 Hour</SelectItem>
+                    <SelectLabel>Durata</SelectLabel>
+                    <SelectItem value="15">15 min</SelectItem>
+                    <SelectItem value="30">30 min</SelectItem>
+                    <SelectItem value="45">45 min</SelectItem>
+                    <SelectItem value="60">1 ora</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -156,7 +156,7 @@ export function EditEventTypeForm({
                 name={fields.videoCallSoftware.name}
                 value={activePlatform}
               />
-              <Label>Video Call Provider</Label>
+              <Label>Piattaforma Meeting</Label>
               <ButtonGroup className="w-full">
                 <Button
                   onClick={() => togglePlatform("Zoom Meeting")}
@@ -195,9 +195,9 @@ export function EditEventTypeForm({
           </CardContent>
           <CardFooter className="w-full flex justify-between">
             <Button asChild variant="secondary">
-              <Link href="/dashboard">Cancel</Link>
+              <Link href="/dashboard">Annulla</Link>
             </Button>
-            <SubmitButton text="Edit Event Type" />
+            <SubmitButton text="Modifica" />
           </CardFooter>
         </form>
       </Card>

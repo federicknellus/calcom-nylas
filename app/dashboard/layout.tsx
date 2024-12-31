@@ -34,13 +34,13 @@ async function getData(id: string) {
     },
   });
 
-  // if (!data?.username) {
-  //   return redirect("/onboarding");
-  // }
+  if (!data?.username) {
+    return redirect("/onboarding");
+  }
 
-  // if (!data.grantId) {
-  //   return redirect("/onboarding/grant-id");
-  // }
+  if (!data.grantId) {
+    return redirect("/onboarding/grant-id");
+  }
 
   return data;
 }
@@ -121,7 +121,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                       alt="Profile"
                       width={20}
                       height={20}
-                      className="w-full h-full rounded-full"
+                      className="w-full h-full rounded-full bg-opacity-50"
                     />
                     <span className="sr-only">Toggle user menu</span>
                   </Button>
