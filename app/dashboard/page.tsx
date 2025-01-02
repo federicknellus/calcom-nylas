@@ -128,7 +128,7 @@ const DashbaordPage = async () => {
                     <div className="ml-5 w-0 flex-1">
                       <dl>
                         <dt className="text-sm font-medium truncate ">
-                          {item.duration} Incontro
+                          {item.duration} min
                         </dt>
                         <dd>
                           <div className="text-lg font-medium ">
