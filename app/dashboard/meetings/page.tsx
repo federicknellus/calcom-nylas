@@ -45,22 +45,23 @@ async function getData(userId: string) {
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
+  // console.log(data.data[0]);
 
   return (
     <>
       {data.data.length < 1 ? (
         <EmptyState
           title="No meetings found"
-          description="You don't have any meetings yet."
-          buttonText="Create a new event type"
+          description="Non hai ancora nessuna prenotazione..."
+          buttonText="Crea un nuovo evento"
           href="/dashboard/new"
         />
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Bookings</CardTitle>
+            <CardTitle>Prenotazioni</CardTitle>
             <CardDescription>
-              See upcoming and past events booked through your event type links.
+              Le tue prenotazioni nel prossimo futuro
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -77,15 +78,22 @@ const MeetingsPage = async () => {
                       {format(fromUnixTime(item.when.endTime), "hh:mm a")}
                     </p>
                     <div className="flex items-center mt-1">
-                      <Video className="size-4 mr-2 text-primary" />{" "}
-                      {/* <a
-                        className="text-xs text-primary underline underline-offset-4"
+                      <Video
+                        className={`size-4 mr-2 ${
+                          item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
+                        }`}
+                      />
+                      <a
+                        className={`text-xs underline underline-offset-4 ${
+                          item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
+                        }`}
                         target="_blank"
-                        href={item.conferencing.details.url}
+                        href={item.conferencing?.details?.url || "#"}
                       >
-                        Join Meeting
-                      </a> */}
+                        {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"}
+                      </a>
                     </div>
+
                   </div>
                   <div className="flex flex-col items-start">
                     <h2 className="text-sm font-medium">{item.title}</h2>
