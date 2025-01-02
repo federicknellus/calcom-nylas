@@ -131,7 +131,7 @@ const BookingPage = async ({
               className="hidden md:block h-full w-[1px]"
             />
 
-<form
+          <form
               className="flex flex-col gap-y-4"
               action={createMeetingAction}
             >

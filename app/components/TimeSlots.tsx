@@ -55,6 +55,7 @@ async function getAvailability(selectedDate: Date, userName: string) {
     },
   });
 
+
   
   return { data, nylasCalendarData };
 }

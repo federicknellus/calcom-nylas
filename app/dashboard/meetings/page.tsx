@@ -78,13 +78,13 @@ const MeetingsPage = async () => {
                     </p>
                     <div className="flex items-center mt-1">
                       <Video className="size-4 mr-2 text-primary" />{" "}
-                      <a
+                      {/* <a
                         className="text-xs text-primary underline underline-offset-4"
                         target="_blank"
                         href={item.conferencing.details.url}
                       >
                         Join Meeting
-                      </a>
+                      </a> */}
                     </div>
                   </div>
                   <div className="flex flex-col items-start">
