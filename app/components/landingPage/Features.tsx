@@ -1,12 +1,15 @@
 import { DollarSign } from "lucide-react";
 import { Zap } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { NotebookPen } from 'lucide-react';
+
 
 
 const features = [
   {
     name: "Registrati gratuitamente",
     description:
-      "Prova gratuitamente e poi decidi!.",
+      "Prova gratuitamente e poi decidi!",
     icon: DollarSign,
   },
   {
@@ -15,18 +18,18 @@ const features = [
       "In pochi click hai già tutto pronto!",
     icon: Zap,
   },
-  // {
-  //   name: "Super secure with Nylas",
-  //   description:
-  //     "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-  //   icon: CloudRain,
-  // },
-  // {
-  //   name: "Easy to use",
-  //   description:
-  //     "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-  //   icon: CloudRain,
-  // },
+  {
+    name: "Senza pensieri",
+    description:
+      "Ci pensiamo noi a gestire la tua agenda!",
+    icon: Calendar,
+  },
+  {
+    name: "Basta carta e penna!",
+    description:
+      "Non dovrai più scrivere appuntamenti su carta e sfogliare gigantesche agende!",
+    icon: NotebookPen,
+  },
 ];
 
 export function Features() {

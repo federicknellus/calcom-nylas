@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { AuthModal } from "./AuthModal";
 
 export function CTA() {
   return (
@@ -11,7 +12,10 @@ export function CTA() {
           Basta perdere delle ore a gestire la tua agenda. 
         </h3>
         <div className="mt-8 flex items-center justify-center gap-x-6">
-          <Button>Inizia oggi</Button>
+          <AuthModal 
+          action={"Registrati"}
+          titolo="Inizia ora!"
+          />
         </div>
         {/* gradient svg */}
         <svg

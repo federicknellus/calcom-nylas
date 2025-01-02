@@ -23,7 +23,10 @@ export function Navbar() {
       <nav className="hidden md:flex md:justify-end md:space-x-4">
         <ThemeToggle />
 
-        <AuthModal />
+        <AuthModal 
+        action={"SignIn"}
+        titolo="Ho già un account!"
+        />
       </nav>
     </div>
   );

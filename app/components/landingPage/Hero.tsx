@@ -22,7 +22,7 @@ export function Hero() {
            ZenCal ti permette di gestire gli appuntamenti...senza gestirli! Ci pensiamo noi!
           </p>
           <div className=" mt-5 mb-12">
-            <AuthModal />
+            <AuthModal action={"Registrati"} titolo="Provalo gratis!"/>
           </div>
         </div>
 

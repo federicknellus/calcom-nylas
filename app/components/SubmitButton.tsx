@@ -45,40 +45,40 @@ export function SubmitButton({ text, variant, className }: iAppProps) {
   );
 }
 
-export function FacebookAuthButton() {
-  const { pending } = useFormStatus();
-  return (
-    <>
-      {pending ? (
-        <Button variant="outline" className="w-full" disabled>
-          <Loader2 className="size-4 mr-2 animate-spin" /> Please wait
-        </Button>
-      ) : (
-        <Button variant="outline" className="w-full">
-          <Image
-            src={FacebookLogo}
-            className="size-4 mr-2 dark:invert"
-            alt="Google Logo"
-          />
-          Registrati con Facebook
-        </Button>
-      )}
-    </>
-  );
-}
+// export function FacebookAuthButton(action?: string) {
+//   const { pending } = useFormStatus();
+//   return (
+//     <>
+//       {pending ? (
+//         <Button variant="outline" className="w-full" disabled>
+//           <Loader2 className="size-4 mr-2 animate-spin" /> Please wait
+//         </Button>
+//       ) : (
+//         <Button variant="outline" className="w-full">
+//           <Image
+//             src={FacebookLogo}
+//             className="size-4 mr-2 dark:invert"
+//             alt="Google Logo"
+//           />
+//           {action + " con Google"}
+//         </Button>
+//       )}
+//     </>
+//   );
+// }
 
-export function GoogleAuthButton() {
+export function GoogleAuthButton({action}: {action:string}) {
   const { pending } = useFormStatus();
   return (
     <>
       {pending ? (
         <Button variant="outline" className="w-full" disabled>
-          <Loader2 className="size-4 mr-2 animate-spin" /> Please wait
+          <Loader2 className="size-4 mr-2 animate-spin" /> Attendere
         </Button>
       ) : (
         <Button variant="outline" className="w-full">
           <Image src={GoogleLogo} className="size-4 mr-2" alt="Google Logo" />
-          Registrati con Google
+          {action + " con Google"}
         </Button>
       )}
     </>

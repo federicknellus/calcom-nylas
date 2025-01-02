@@ -12,15 +12,14 @@ import { VisuallyHidden } from "react-aria";
 import Logo from "@/public/logo.png";
 import Image from "next/image";
 
-
 import { signIn } from "@/app/lib/auth";
-import { FacebookAuthButton, GoogleAuthButton } from "../SubmitButton";
+import {GoogleAuthButton } from "../SubmitButton";
 
-export function AuthModal() {
+export function AuthModal({action, titolo}:{action: string, titolo: string}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Provalo Gratis</Button>
+        <Button>{titolo}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
@@ -37,10 +36,10 @@ export function AuthModal() {
                 await signIn("google");
               }}
             >
-            <GoogleAuthButton />
+            <GoogleAuthButton action={action}/>
           </form>
 
-          <form
+          {/* <form
             className="w-full"
             action={async () => {
               "use server";
@@ -48,7 +47,7 @@ export function AuthModal() {
             }}
           >
             <FacebookAuthButton />
-          </form>
+          </form> */}
         </div>
       </DialogContent>
     </Dialog>
