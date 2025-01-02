@@ -23,7 +23,7 @@ export function AuthModal({action, titolo}:{action: string, titolo: string}) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
-          <Image src={Logo} className="size-10" alt="Logo" />
+          <Image src={Logo} className="w-16" alt="Logo" />
           <DialogTitle className="text-3xl font-semibold">
             Zen<span className="text-primary">Cal</span>
           </DialogTitle>

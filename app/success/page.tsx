@@ -15,11 +15,11 @@ export default function SuccessPage() {
             <Check className="w-8 h-8 text-green-500" />
           </div>
           <h1 className="text-2xl font-semibold mt-4">
-            This event is scheduled
+            Evento prenotato con successo
           </h1>
           <p className="text-sm text-muted-foreground text-center mt-1">
-            We emailed you and the other attendees a calendar invitation with
-            all the details.
+            Abbiamo inviato una mail di recap a te e il tuo professionista. 
+            In caso di problemi, modifica l'impegno o contatta il tuo professionista.
           </p>
 
           {/*     <Separator className="my-5" />

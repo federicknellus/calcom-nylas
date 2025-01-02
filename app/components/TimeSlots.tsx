@@ -158,7 +158,7 @@ export async function TimeSlots({
             </Link>
           ))
         ) : (
-          <p>No available time slots for this date.</p>
+          <p>Nessuno slot disponibile per questa data.</p>
         )}
       </div>
     </div>

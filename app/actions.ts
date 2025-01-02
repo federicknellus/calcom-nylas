@@ -311,7 +311,6 @@ export async function createMeetingAction(formData: FormData) {
   const formTime = formData.get("fromTime") as string;
   const meetingLength = Number(formData.get("meetingLength"));
   const eventDate = formData.get("eventDate") as string;
-
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
 
   // Calculate the end time by adding the meeting length (in minutes) to the start time
@@ -322,6 +321,7 @@ export async function createMeetingAction(formData: FormData) {
     requestBody: {
       title: eventTypeData?.title,
       description: eventTypeData?.description,
+
       when: {
         startTime: Math.floor(startDateTime.getTime() / 1000),
         endTime: Math.floor(endDateTime.getTime() / 1000),
@@ -334,16 +334,19 @@ export async function createMeetingAction(formData: FormData) {
         {
           name: formData.get("name") as string,
           email: formData.get("email") as string,
-          status: "yes",
+          status: "yes"
         },
       ],
+      reminders: { 
+        useDefault: false, 
+        overrides:[{reminderMethod: 'email', reminderMinutes: 15}]
+      },
     },
     queryParams: {
       calendarId: getUserData?.grantEmail as string,
       notifyParticipants: true,
     },
   });
-
   return redirect(`/success`);
 }
 
@@ -374,3 +377,53 @@ export async function cancelMeetingAction(formData: FormData) {
 
   revalidatePath("/dashboard/meetings");
 }
+
+
+
+
+
+export async function updateMeetingAction(formData: FormData) {
+  
+  const eventId = formData.get('eventId') as string;
+  const session = await requireUser();
+
+  // Fetch user data
+  const getUserData = await prisma.user.findUnique({
+    where: {
+      id: session.user?.id as string,
+    },
+    select: { grantEmail: true, grantId: true },
+  });
+
+  if (!getUserData) {
+    throw new Error('User not found');
+  }
+
+  // Prepare updated event details
+  const updatedTitle = formData.get('title') as string;
+  const updatedDescription = formData.get('description') as string;
+  const updatedStartTime = new Date(formData.get('startTime') as string);
+  const updatedEndTime = new Date(formData.get('endTime') as string);
+
+  // Update the event using Nylas
+  await nylas.events.update({
+    identifier: getUserData.grantId!,
+    eventId,
+    requestBody: {
+      title: updatedTitle,
+      description: updatedDescription,
+      when: {
+        startTime: Math.floor(updatedStartTime.getTime() / 1000),
+        endTime: Math.floor(updatedEndTime.getTime() / 1000),
+      },
+      // Include other fields as necessary
+    },
+    queryParams: {
+      calendarId: getUserData.grantEmail!,
+      notifyParticipants: true,
+    },
+  });
+
+  return redirect(`/meetings`);
+}
+

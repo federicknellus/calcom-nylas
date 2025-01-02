@@ -7,9 +7,11 @@ import Image from "next/image";
 import { useFormStatus } from "react-dom";
 import FacebookLogo from "@/public/facebook.svg";
 import GoogleLogo from "@/public/google.svg";
+import { useRouter } from "next/navigation";
 
 interface iAppProps {
   text: string;
+  icon?: React.ReactNode; 
   variant?:
     | "default"
     | "destructive"
@@ -19,16 +21,25 @@ interface iAppProps {
     | "link"
     | null
     | undefined;
-
+  redirectUrl?: string;
   className?: string;
 }
 
-export function SubmitButton({ text, variant, className }: iAppProps) {
+export function SubmitButton({ text, icon, variant, redirectUrl, className }: iAppProps) {
   const { pending } = useFormStatus();
+
+  const router = useRouter();
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (redirectUrl) {
+      e.preventDefault();
+      router.push(redirectUrl);
+    }
+  };
 
   return (
     <>
-      {pending ? (
+      {pending && !redirectUrl ? (
         <Button disabled variant="outline" className={cn("w-fit", className)}>
           <Loader2 className="size-4 mr-2 animate-spin" /> Attendere
         </Button>
@@ -37,8 +48,9 @@ export function SubmitButton({ text, variant, className }: iAppProps) {
           variant={variant}
           type="submit"
           className={cn("w-fit", className)}
+          onClick={ handleClick}
         >
-          {text}
+          {icon}{text}
         </Button>
       )}
     </>

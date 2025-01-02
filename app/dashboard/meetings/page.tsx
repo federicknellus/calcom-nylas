@@ -3,6 +3,7 @@ import { EmptyState } from "@/app/components/dashboard/EmptyState";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { auth } from "@/app/lib/auth";
 import { nylas } from "@/app/lib/nylas";
+import { Trash2 as Trash} from "lucide-react";
 
 import {
   Card,
@@ -15,10 +16,11 @@ import { Separator } from "@/components/ui/separator";
 import prisma from "@/app/lib/db";
 import { format, fromUnixTime } from "date-fns";
 import { Icon, Video } from "lucide-react";
-
 import React from "react";
+import { redirect } from "next/navigation";
 
 async function getData(userId: string) {
+
   const userData = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -26,6 +28,7 @@ async function getData(userId: string) {
     select: {
       grantId: true,
       grantEmail: true,
+      username: true,
     },
   });
 
@@ -39,13 +42,13 @@ async function getData(userId: string) {
     },
   });
 
-  return data;
+  return {data, userData};
 }
 
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
-  console.log(data.data[0]);
+  console.log(data.data.data[0]);
 
   return (
     <>
@@ -65,7 +68,7 @@ const MeetingsPage = async () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {data.data.map((item) => (
+            {data.data.data.map((item) => (
               <form key={item.id} action={cancelMeetingAction}>
                 <input type="hidden" name="eventId" value={item.id} />
                 <div className="grid grid-cols-3 justify-between items-center">
@@ -102,11 +105,20 @@ const MeetingsPage = async () => {
                     </p>
 
                   </div>
-                  <SubmitButton
-                    text="Cancel Event"
-                    variant="destructive"
-                    className="w-fit flex ml-auto"
-                  />
+                  <div className="flex flex-row ml-auto space-x-2">
+                    <SubmitButton
+                      text="Modifica Evento"
+                      variant="secondary"
+                      className="w-fit flex "
+                      redirectUrl={`${process.env.NEXT_PUBLIC_URL}/${data.userData.username}/DodoGro`}
+                    />
+                    <SubmitButton
+                      text=" "
+                      icon={<Trash size={16} name="trash" />}
+                      variant="destructive"
+                      className="w-fit flex "
+                    />
+                  </div>
                 </div>
                 <Separator className="my-3" />
               </form>
@@ -120,35 +132,3 @@ const MeetingsPage = async () => {
 
 export default MeetingsPage;
 
-{
-  /* <form key={item.id} action={cancelMeetingAction}>
-                <input type="hidden" name="eventId" value={item.id} />
-                <div className="grid grid-cols-3 justify-between items-center">
-                  <div>
-                    <p>
-                      {format(fromUnixTime(item.when.startTime), "EEE, dd MMM")}
-                    </p>
-                    <p>
-                      {format(fromUnixTime(item.when.startTime), "hh:mm a")} -{" "}
-                      {format(fromUnixTime(item.when.endTime), "hh:mm a")}
-                    </p>
-                    <div className="flex items-center">
-                      <Video className="size-4 mr-2 text-primary" />{" "}
-                      <a target="_blank" href={item.conferencing.details.url}>
-                        Join Meeting
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <h2>{item.title}</h2>
-                    <p>You and {item.participants[0].name}</p>
-                  </div>
-                  <SubmitButton
-                    text="Cancel Event"
-                    variant="destructive"
-                    className="w-fit flex ml-auto"
-                  />
-                </div>
-                <Separator className="my-3" />
-              </form> */
-}

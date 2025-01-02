@@ -29,12 +29,12 @@ import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 
 type Platform = "Zoom Meeting" | "Google Meet" | "Microsoft Teams";
 
 const CreateNewEvent = () => {
-  const [lastResult, action] = useFormState(CreateEventTypeAction, undefined);
+  const [lastResult, action] = useActionState(CreateEventTypeAction, undefined);
   const [form, fields] = useForm({
     // Sync the result of last submission
     lastResult,
