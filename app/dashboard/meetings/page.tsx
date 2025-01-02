@@ -98,8 +98,9 @@ const MeetingsPage = async () => {
                   <div className="flex flex-col items-start">
                     <h2 className="text-sm font-medium">{item.title}</h2>
                     <p className="text-sm text-muted-foreground">
-                      Tu e {item.participants[0].email}
+                      Tu e {item.participants[0].name || item.participants[0].email}
                     </p>
+
                   </div>
                   <SubmitButton
                     text="Cancel Event"
