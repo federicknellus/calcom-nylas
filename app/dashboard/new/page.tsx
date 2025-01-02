@@ -57,36 +57,36 @@ const CreateNewEvent = () => {
     <div className="h-full w-full flex-1 flex flex-col items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>Add new appointment type</CardTitle>
+          <CardTitle>Aggiungi nuova tipologia evento</CardTitle>
           <CardDescription>
-            Create a new appointment type that allows people to book times.
+            Crea una nuova tipologia di evento prenotabile dai tuoi clienti!
           </CardDescription>
         </CardHeader>
         <form noValidate id={form.id} onSubmit={form.onSubmit} action={action}>
           <CardContent className="grid gap-y-5">
             <div className="flex flex-col gap-y-2">
-              <Label>Title</Label>
+              <Label>Titolo</Label>
               <Input
                 name={fields.title.name}
                 key={fields.title.key}
                 defaultValue={fields.title.initialValue}
-                placeholder="30 min meeting"
+                placeholder="Visita 30 min"
               />
               <p className="text-red-500 text-sm">{fields.title.errors}</p>
             </div>
 
             <div className="grid gap-y-2 ">
-              <Label>URL Slug</Label>
+              <Label>Link</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                  ZenCal.it/
                 </span>
                 <Input
                   type="text"
                   key={fields.url.key}
                   defaultValue={fields.url.initialValue}
                   name={fields.url.name}
-                  placeholder="example-user-1"
+                  placeholder="MarioRossi-1"
                   className="rounded-l-none"
                 />
               </div>
@@ -95,12 +95,12 @@ const CreateNewEvent = () => {
             </div>
 
             <div className="grid gap-y-2">
-              <Label>Description</Label>
+              <Label>Descrizione</Label>
               <Textarea
                 name={fields.description.name}
                 key={fields.description.key}
                 defaultValue={fields.description.initialValue}
-                placeholder="30 min meeting"
+                placeholder="Visita 30 min"
               />
               <p className="text-red-500 text-sm">
                 {fields.description.errors}
@@ -108,18 +108,18 @@ const CreateNewEvent = () => {
             </div>
 
             <div className="grid gap-y-2">
-              <Label>Duration</Label>
+              <Label>Durata</Label>
               <Select
                 name={fields.duration.name}
                 key={fields.duration.key}
                 defaultValue={fields.duration.initialValue}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select the duration" />
+                  <SelectValue placeholder="Seleziona la durata" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Duration</SelectLabel>
+                    <SelectLabel>Durata</SelectLabel>
                     <SelectItem value="15">15 Mins</SelectItem>
                     <SelectItem value="30">30 Min</SelectItem>
                     <SelectItem value="45">45 Mins</SelectItem>
@@ -137,7 +137,7 @@ const CreateNewEvent = () => {
                 name={fields.videoCallSoftware.name}
                 value={activePlatform}
               />
-              <Label>Video Call Provider</Label>
+              <Label>Piattaforma (opzionale) </Label>
               <ButtonGroup className="w-full">
                 <Button
                   onClick={() => togglePlatform("Zoom Meeting")}
@@ -178,7 +178,7 @@ const CreateNewEvent = () => {
             <Button asChild variant="secondary">
               <Link href="/dashboard">Cancel</Link>
             </Button>
-            <SubmitButton text="Create Event Type" />
+            <SubmitButton text="Crea Tipologia Evento" />
           </CardFooter>
         </form>
       </Card>

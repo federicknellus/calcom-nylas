@@ -9,17 +9,17 @@ export function Hero() {
       <div className="relative items-center w-full py-12 lg:py-20">
         <div className="text-center">
           <span className="text-sm text-primary font-medium tracking-tight bg-primary/10 px-4 py-2 rounded-full">
-            Introducing CalMarshal 1.0
+            Ciao, ti disturbo? Vorrei prenotare un appunta...😪 
           </span>
 
           <h1 className="mt-8 text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium leading-none">
-            Scheduling made{" "}
-            <span className="block text-primary">super easy!</span>
+            Prenotare con un{" "}
+            <span className="block text-primary">click o whatsapp!</span>
           </h1>
 
           <p className="max-w-xl mx-auto mt-4   lg:text-lg text-muted-foreground ">
-            Scheduling a meeting can be a pain. But we at CalMarshal make it
-            easy for your clients to schedule meetings with you.
+           Gestire un'agenda fitta mentre si lavora è difficile: dimenticare appuntamenti, sovrapporne o spostarli, che dramma! <br></br>
+           ZenCal ti permette di gestire gli appuntamenti...senza gestirli! Ci pensiamo noi!
           </p>
           <div className=" mt-5 mb-12">
             <AuthModal />
@@ -75,7 +75,7 @@ export function Hero() {
                 ></feBlend>
                 <feGaussianBlur
                   result="effect1_foregroundBlur_10_20"
-                  stdDeviation="80.1666"
+                  stdDeviation="60.1666"
                 ></feGaussianBlur>
               </filter>
             </defs>

@@ -1,44 +1,46 @@
-import { CloudRain } from "lucide-react";
+import { DollarSign } from "lucide-react";
+import { Zap } from "lucide-react";
+
 
 const features = [
   {
-    name: "Sign up for free",
+    name: "Registrati gratuitamente",
     description:
-      "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-    icon: CloudRain,
+      "Prova gratuitamente e poi decidi!.",
+    icon: DollarSign,
   },
   {
-    name: "Balzing fast",
+    name: "Incredibilmente veloce",
     description:
-      "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-    icon: CloudRain,
+      "In pochi click hai già tutto pronto!",
+    icon: Zap,
   },
-  {
-    name: "Super secure with Nylas",
-    description:
-      "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-    icon: CloudRain,
-  },
-  {
-    name: "Easy to use",
-    description:
-      "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
-    icon: CloudRain,
-  },
+  // {
+  //   name: "Super secure with Nylas",
+  //   description:
+  //     "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
+  //   icon: CloudRain,
+  // },
+  // {
+  //   name: "Easy to use",
+  //   description:
+  //     "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna.",
+  //   icon: CloudRain,
+  // },
 ];
 
 export function Features() {
   return (
     <div className="py-24 ">
       <div className="max-w-2xl mx-auto lg:text-center">
-        <p className="font-semibold leading-7 text-primary">Schedule faster</p>
+        <p className="font-semibold leading-7 text-primary">Prenota subito!</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          Schedule meetings in minutes
+          Prenotare in un click
         </h1>
         <p className="mt-6 text-base leading-snug text-muted-foreground">
-          With CalMarshal you can schedule meetings in minutes. We make it easy
-          for you to schedule meetings in minutes. The meetings are very fast
-          and easy to schedule.
+          Con ZenCal puoi gestire la tua agenda senza starci dietro. 
+          Condividi il tuo link con i tuoi clienti e lascia che siano loro a prenotare il tuo tempo.
+          Tu dovrai solo controlare la tua agenda per vedere chi è il prossimo nella lista.
         </p>
       </div>
 

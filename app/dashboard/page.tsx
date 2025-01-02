@@ -71,7 +71,7 @@ const DashbaordPage = async () => {
         <EmptyState
           title="Non hai ancora creato nessun evento"
           description="Puoi creare un evento per condividere con i tuoi clienti"
-          buttonText="Add Event Type"
+          buttonText="Aggiungi tipologia evento"
           href="/dashboard/new"
         />
       ) : (

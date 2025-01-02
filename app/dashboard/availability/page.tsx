@@ -53,6 +53,7 @@ function translateDayToItalian(day: string): string {
 const AvailabilityPage = async () => {
   const session = await requireUser();
   const data = await getData(session.user?.id as string);
+  console.log(data)
   
   ;
   return (
@@ -60,7 +61,7 @@ const AvailabilityPage = async () => {
       <CardHeader>
         <CardTitle>Disponibilità</CardTitle>
         <CardDescription>
-          In questa sezione puoi impostare la tua disponibilità per i tuoi
+          In questa sezione puoi impostare la tua disponibilità per i diversi giorni della settimana.
         </CardDescription>
       </CardHeader>
       <form action={updateAvailabilityAction}>
