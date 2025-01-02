@@ -58,10 +58,22 @@ const BookingPage = async ({
   params: { username: string; eventName: string };
   searchParams: { date?: string; time?: string };
 }) => {
-  const selectedDate = searchParams.date
-    ? new Date(searchParams.date)
+  
+  // Await the `params` before using its properties
+  const resolvedParams = await Promise.resolve(params);
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+
+  const { username, eventName } = resolvedParams;
+
+  const selectedDate = resolvedSearchParams.date
+    ? new Date(resolvedSearchParams.date)
     : new Date();
-  const eventType = await getData(params.username, params.eventName);
+
+  const eventType = await getData(username, eventName);
+
+  if (!eventType) {
+    return notFound();
+  }
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -69,7 +81,8 @@ const BookingPage = async ({
     month: "long",
   }).format(selectedDate);
 
-  const showForm = !!searchParams.date && !!searchParams.time;
+  const showForm = !!resolvedSearchParams.date && !!resolvedSearchParams.time;
+
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
@@ -118,30 +131,30 @@ const BookingPage = async ({
               className="hidden md:block h-full w-[1px]"
             />
 
-            <form
+<form
               className="flex flex-col gap-y-4"
               action={createMeetingAction}
             >
               <input type="hidden" name="eventTypeId" value={eventType.id} />
-              <input type="hidden" name="username" value={params.username} />
-              <input type="hidden" name="fromTime" value={searchParams.time} />
-              <input type="hidden" name="eventDate" value={searchParams.date} />
+              <input type="hidden" name="username" value={username} />
+              <input type="hidden" name="fromTime" value={resolvedSearchParams.time} />
+              <input type="hidden" name="eventDate" value={resolvedSearchParams.date} />
               <input
                 type="hidden"
                 name="meetingLength"
                 value={eventType.duration}
               />
               <div className="flex flex-col gap-y-1">
-                <Label>Your Name</Label>
-                <Input name="name" placeholder="Your Name" />
+                <Label>Il tuo nome</Label>
+                <Input name="name" placeholder="Il tuo nome" />
               </div>
 
               <div className="flex flex-col gap-y-1">
-                <Label>Your Email</Label>
-                <Input name="email" placeholder="johndoe@gmail.com" />
+                <Label>La tua email</Label>
+                <Input name="email" placeholder="mariorossi@gmail.com" />
               </div>
 
-              <SubmitButton text="Book Meeting" />
+              <SubmitButton text="Prenota" />
             </form>
           </CardContent>
         </Card>
@@ -201,7 +214,7 @@ const BookingPage = async ({
 
             <TimeSlots
               selectedDate={selectedDate}
-              userName={params.username}
+              userName={username}
               meetingDuration={eventType.duration}
             />
           </CardContent>

@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useFormStatus } from "react-dom";
-import GithubLogo from "@/public/github.svg";
+import FacebookLogo from "@/public/facebook.svg";
 import GoogleLogo from "@/public/google.svg";
+
 interface iAppProps {
   text: string;
   variant?:
@@ -44,7 +45,7 @@ export function SubmitButton({ text, variant, className }: iAppProps) {
   );
 }
 
-export function GitHubAuthButton() {
+export function FacebookAuthButton() {
   const { pending } = useFormStatus();
   return (
     <>
@@ -55,11 +56,11 @@ export function GitHubAuthButton() {
       ) : (
         <Button variant="outline" className="w-full">
           <Image
-            src={GithubLogo}
+            src={FacebookLogo}
             className="size-4 mr-2 dark:invert"
             alt="Google Logo"
           />
-          Registrati con GitHub
+          Registrati con Facebook
         </Button>
       )}
     </>

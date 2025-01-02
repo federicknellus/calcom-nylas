@@ -11,11 +11,10 @@ import { VisuallyHidden } from "react-aria";
 
 import Logo from "@/public/logo.png";
 import Image from "next/image";
-import GooleLogo from "@/public/google.svg";
-import GitHubLogo from "@/public/github.svg";
+
 
 import { signIn } from "@/app/lib/auth";
-import { GitHubAuthButton, GoogleAuthButton } from "../SubmitButton";
+import { FacebookAuthButton, GoogleAuthButton } from "../SubmitButton";
 
 export function AuthModal() {
   return (
@@ -48,7 +47,7 @@ export function AuthModal() {
               await signIn("github");
             }}
           >
-            <GitHubAuthButton />
+            <FacebookAuthButton />
           </form>
         </div>
       </DialogContent>

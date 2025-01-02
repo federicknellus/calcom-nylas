@@ -87,7 +87,7 @@ export async function onboardingAction(prevState: any, formData: FormData) {
     },
   });
 
-  return redirect("/dashboard");
+  return redirect("/onboarding");
 }
 
 export async function SettingsAction(prevState: any, formData: FormData) {
