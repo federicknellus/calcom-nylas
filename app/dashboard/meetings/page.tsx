@@ -45,7 +45,7 @@ async function getData(userId: string) {
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
-  // console.log(data.data[0]);
+  console.log(data.data[0]);
 
   return (
     <>
@@ -78,27 +78,27 @@ const MeetingsPage = async () => {
                       {format(fromUnixTime(item.when.endTime), "hh:mm a")}
                     </p>
                     <div className="flex items-center mt-1">
-                      <Video
-                        className={`size-4 mr-2 ${
-                          item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
-                        }`}
-                      />
-                      <a
-                        className={`text-xs underline underline-offset-4 ${
-                          item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
-                        }`}
-                        target="_blank"
-                        href={item.conferencing?.details?.url || "#"}
-                      >
-                        {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"}
-                      </a>
-                    </div>
+                    <Video
+                      className={`size-4 mr-2 ${
+                        item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
+                      }`}
+                    />
+                    <a
+                      className={`text-xs underline-offset-4 ${
+                        item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground cursor-not-allowed pointer-events-none"
+                      }`}
+                      target="_blank"
+                      href={item.conferencing?.details?.url || "#"}
+                    >
+                      {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"}
+                    </a>
+                  </div>
 
                   </div>
                   <div className="flex flex-col items-start">
                     <h2 className="text-sm font-medium">{item.title}</h2>
                     <p className="text-sm text-muted-foreground">
-                      You and {item.participants[0].name}
+                      Tu e {item.participants[0].email}
                     </p>
                   </div>
                   <SubmitButton
