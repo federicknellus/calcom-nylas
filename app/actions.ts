@@ -186,8 +186,7 @@ export async function CreateEventTypeAction(
         },
       ],
       scheduler:{
-        reschedulingUrl: "http://localhost:3000/rescheduling/"+ getUserData.grantId +"/:booking_ref",
-        // cancellationUrl: 'http://localhost:3000/dashboard/meetings'
+        reschedulingUrl: "http://localhost:3000/rescheduling/"+ ":booking_ref",
       },
       availability:{
         durationMinutes: submission.value.duration,
@@ -195,15 +194,17 @@ export async function CreateEventTypeAction(
     },
   });
 
-  console.log("General",configuration);
-  console.log("Partecipanti",configuration.data.participants)
-  console.log("Email template",configuration.data.scheduler?.emailTemplate)
+  console.log("Configuration",configuration.data.scheduler?.reschedulingUrl);
 
-  const configurations = await nylas.scheduler.configurations.list({
-    identifier: getUserData.grantId as string,
-  });
+  // console.log("General",configuration);
+  // console.log("Partecipanti",configuration.data.participants)
+  // console.log("Email template",configuration.data.scheduler?.emailTemplate)
 
-  console.log("Available Configurations", configurations);
+  // const configurations = await nylas.scheduler.configurations.list({
+  //   identifier: getUserData.grantId as string,
+  // });
+
+  // console.log("Available Configurations", configurations);
 
   const data = await prisma.eventType.create({
     data: {
@@ -216,7 +217,6 @@ export async function CreateEventTypeAction(
       configurationId: configuration.data.id,
     },
   });
-
 
   return redirect("/dashboard");
 
@@ -390,9 +390,10 @@ export async function createMeetingAction(formData: FormData) {
   const meetingLength = Number(formData.get("meetingLength"));
   const eventDate = formData.get("eventDate") as string;
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
-
   // Calculate the end time by adding the meeting length (in minutes) to the start time
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
+
+
   const booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
@@ -408,8 +409,19 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
   console.log(booking)
+
+  const data = await prisma.meeting.create({
+    data: {
+      configurationId: eventTypeData?.configurationId as string,
+      bookingId: booking.data.bookingId,
+    }
+  });
+
   return redirect(`/success`);
 }
+
+
+
 
 
 export async function cancelMeetingAction(formData: FormData) {

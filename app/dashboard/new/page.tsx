@@ -120,10 +120,10 @@ const CreateNewEvent = () => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Durata</SelectLabel>
-                    <SelectItem value="15">15 Mins</SelectItem>
+                    <SelectItem value="15">15 Min</SelectItem>
                     <SelectItem value="30">30 Min</SelectItem>
-                    <SelectItem value="45">45 Mins</SelectItem>
-                    <SelectItem value="60">1 Hour</SelectItem>
+                    <SelectItem value="45">45 Min</SelectItem>
+                    <SelectItem value="60">1 Ora</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

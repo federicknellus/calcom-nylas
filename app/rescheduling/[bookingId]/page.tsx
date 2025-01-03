@@ -287,20 +287,31 @@ async function getAvailability(username: string, eventName: string) {
   return eventType;
 }
 
-
 const Reschedule = async ({
   params,
   searchParams,
 }: {
-  params: { configurationId: string,bookingId: string };
+  params: {bookingId: string };
   searchParams: { date?: string; time?: string };
-
 }) => {
-  const { configurationId, bookingId } = await Promise.resolve(params);
-  console.log("Configuration id",configurationId,"BookingId",bookingId);
+  
+  const {bookingId } = await Promise.resolve(params);
+  console.log("BookingId",bookingId);
+
+  const config_data = await prisma.meeting.findUnique({
+    where: {
+      bookingId: bookingId,
+    },
+    select: {
+      configurationId: true,
+    },
+  });
+
+  console.log('Config Data',config_data)
+
   const eventData = await prisma.eventType.findUnique({
     where: {
-      configurationId: configurationId
+      configurationId: config_data?.configurationId 
     },
     select: {
       title: true,
@@ -314,20 +325,20 @@ const Reschedule = async ({
   console.log('Event Data',eventData)
   const userId = eventData?.userId
   
-  async function fetchBookingById() {
-    try {
-      const booking = await nylas.scheduler.bookings.find({
-        queryParams: {
-          configurationId: configurationId,
-        },
-        bookingId: bookingId,
-      });
-      console.log("Booking", booking);
-    } catch (error) {
-      console.error("Error fetching booking", error);
-    }
-  }
-fetchBookingById()
+//   async function fetchBookingById() {
+//     try {
+//       const booking = await nylas.scheduler.bookings.find({
+//         queryParams: {
+//           configurationId: configurationId,
+//         },
+//         bookingId: bookingId,
+//       });
+//       console.log("Booking", booking);
+//     } catch (error) {
+//       console.error("Error fetching booking", error);
+//     }
+//   }
+// fetchBookingById()
 
 
   const userData = await prisma.user.findUnique({
@@ -344,7 +355,7 @@ fetchBookingById()
   });
 
   console.log(userData, eventData)
-const eventType = await getAvailability(userData?.username, eventData?.url);
+  const eventType = await getAvailability(userData?.username, eventData?.url);
   console.log('-------',eventType)
   if (!eventType) {
     return notFound();
@@ -361,9 +372,6 @@ const eventType = await getAvailability(userData?.username, eventData?.url);
     }).format(selectedDate);
   return (
    (
-
-    <>
-    <p>{}</p>
            <Card className="w-full max-w-[1000px] mx-auto">
              <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr,auto,1fr] md:gap-4">
                <div>
@@ -424,7 +432,6 @@ const eventType = await getAvailability(userData?.username, eventData?.url);
                />
              </CardContent>
            </Card>
-           </>
          )
   );
 };
