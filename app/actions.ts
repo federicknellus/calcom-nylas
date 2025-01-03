@@ -139,6 +139,72 @@ export async function CreateEventTypeAction(
     return submission.reply();
   }
 
+  const getUserData = await prisma.user.findUnique({
+    where: {
+      id: session.user?.id as string,
+    },
+    select: {
+      grantEmail: true,
+      grantId: true,
+    },
+  });
+
+  if (!getUserData) {
+    throw new Error("User not found");
+  }
+
+  const configuration =  await nylas.scheduler.configurations.create({
+    identifier: getUserData.grantId as string,
+    requestBody: {
+      eventBooking: {
+    title: submission.value.title,
+    description: submission.value.description,
+    disableEmails: false,
+    bookingType: 'booking',
+
+      // when: {
+      //   startTime: Math.floor(startDateTime.getTime() / 1000),
+      //   endTime: Math.floor(endDateTime.getTime() / 1000),
+      // },
+      // conferencing: {
+      //   autocreate: {},
+      //   provider: submission.value.videoCallSoftware,
+      // }
+    },
+
+      participants: [
+        {
+          name: 'Edoardo Gronda',
+          email: getUserData.grantEmail!,
+          availability: {
+            calendarIds: [getUserData.grantEmail!],
+          },
+          booking: {
+            calendarId: getUserData.grantEmail!,
+          },
+          isOrganizer: true,
+        },
+      ],
+      scheduler:{
+        reschedulingUrl: "http://localhost:3000/rescheduling/"+ getUserData.grantId +"/:booking_ref",
+        // cancellationUrl: 'http://localhost:3000/dashboard/meetings'
+      },
+      availability:{
+        durationMinutes: submission.value.duration,
+      }
+    },
+  });
+
+  console.log("General",configuration);
+  console.log("Partecipanti",configuration.data.participants)
+  console.log("Email template",configuration.data.scheduler?.emailTemplate)
+
+  const configurations = await nylas.scheduler.configurations.list({
+    identifier: getUserData.grantId as string,
+  });
+
+  console.log("Available Configurations", configurations);
+
   const data = await prisma.eventType.create({
     data: {
       title: submission.value.title,
@@ -147,10 +213,13 @@ export async function CreateEventTypeAction(
       description: submission.value.description,
       userId: session.user?.id as string,
       videoCallSoftware: submission.value.videoCallSoftware,
+      configurationId: configuration.data.id,
     },
   });
 
+
   return redirect("/dashboard");
+
 }
 
 export async function EditEventTypeAction(prevState: any, formData: FormData) {
@@ -193,8 +262,9 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
     },
   });
 
-  return redirect("/dashboard");
+  return redirect(`/dashboard`);
 }
+
 
 export async function DeleteEventTypeAction(formData: FormData) {
   const session = await requireUser();
@@ -305,8 +375,16 @@ export async function createMeetingAction(formData: FormData) {
     select: {
       title: true,
       description: true,
+      configurationId: true,
     },
   });
+
+  // const session = await nylas.scheduler.sessions.create({
+  //   requestBody: {
+  //   configurationId: eventTypeData?.configurationId as string,
+  //   timeToLive: 15
+  //   }
+  // })
 
   const formTime = formData.get("fromTime") as string;
   const meetingLength = Number(formData.get("meetingLength"));
@@ -315,40 +393,24 @@ export async function createMeetingAction(formData: FormData) {
 
   // Calculate the end time by adding the meeting length (in minutes) to the start time
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-
-  await nylas.events.create({
-    identifier: getUserData?.grantId as string,
+  await nylas.scheduler.bookings.create({
     requestBody: {
-      title: eventTypeData?.title,
-      description: eventTypeData?.description,
-
-      when: {
-        startTime: Math.floor(startDateTime.getTime() / 1000),
-        endTime: Math.floor(endDateTime.getTime() / 1000),
-      },
-      conferencing: {
-        autocreate: {},
-        provider: "Google Meet",
-      },
-      participants: [
+      startTime: Math.floor(startDateTime.getTime() / 1000),
+      endTime: Math.floor(endDateTime.getTime() / 1000),
+      guest: 
         {
           name: formData.get("name") as string,
           email: formData.get("email") as string,
-          status: "yes"
         },
-      ],
-      reminders: { 
-        useDefault: false, 
-        overrides:[{reminderMethod: 'email', reminderMinutes: 15}]
-      },
     },
     queryParams: {
-      calendarId: getUserData?.grantEmail as string,
-      notifyParticipants: true,
+      configurationId: eventTypeData?.configurationId as string,
     },
   });
+
   return redirect(`/success`);
 }
+
 
 export async function cancelMeetingAction(formData: FormData) {
   const session = await requireUser();
@@ -379,51 +441,49 @@ export async function cancelMeetingAction(formData: FormData) {
 }
 
 
+export async function rescheduleMeetingAction(
+  {config_id, booking_id, formData}:
+  {config_id: string, booking_id:string, formData: FormData}) {
 
+  const formTime = formData.get("fromTime") as string;
+  const meetingLength = Number(formData.get("meetingLength"));
+  const eventDate = formData.get("eventDate") as string;
+  const startDateTime = new Date(`${eventDate}T${formTime}:00`);
+  const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
 
-
-export async function updateMeetingAction(formData: FormData) {
-  
-  const eventId = formData.get('eventId') as string;
-  const session = await requireUser();
-
-  // Fetch user data
-  const getUserData = await prisma.user.findUnique({
-    where: {
-      id: session.user?.id as string,
-    },
-    select: { grantEmail: true, grantId: true },
-  });
-
-  if (!getUserData) {
-    throw new Error('User not found');
-  }
-
-  // Prepare updated event details
-  const updatedTitle = formData.get('title') as string;
-  const updatedDescription = formData.get('description') as string;
-  const updatedStartTime = new Date(formData.get('startTime') as string);
-  const updatedEndTime = new Date(formData.get('endTime') as string);
-
-  // Update the event using Nylas
-  await nylas.events.update({
-    identifier: getUserData.grantId!,
-    eventId,
-    requestBody: {
-      title: updatedTitle,
-      description: updatedDescription,
-      when: {
-        startTime: Math.floor(updatedStartTime.getTime() / 1000),
-        endTime: Math.floor(updatedEndTime.getTime() / 1000),
+    const booking = await nylas.scheduler.bookings.reschedule({
+      queryParams: {
+        configurationId: config_id,
       },
-      // Include other fields as necessary
-    },
-    queryParams: {
-      calendarId: getUserData.grantEmail!,
-      notifyParticipants: true,
-    },
-  });
+      bookingId: booking_id,
+      requestBody: {
+        startTime: Math.floor(startDateTime.getTime() / 1000),
+        endTime: Math.floor(endDateTime.getTime() / 1000),
+      },
+    });
 
-  return redirect(`/meetings`);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -15,18 +15,18 @@ const DeleteEventType = ({ params }: { params: { eventTypeId: string } }) => {
     <div className="flex-1 flex items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>Delete Event Type</CardTitle>
+          <CardTitle>Elimina tipologia evento</CardTitle>
           <CardDescription>
-            Are you sure you want to delete this event type?
+            Sicuro di volerlo eliminare? Questa azione è irreversibile.
           </CardDescription>
         </CardHeader>
         <CardFooter className="w-full flex justify-between">
           <Button asChild variant="secondary">
-            <Link href="/dashboard">Cancel</Link>
+            <Link href="/dashboard">Cancella</Link>
           </Button>
           <form action={DeleteEventTypeAction}>
             <input type="hidden" name="id" value={params.eventTypeId} />
-            <Button variant="destructive">Delete</Button>
+            <Button variant="destructive">Elimina</Button>
           </form>
         </CardFooter>
       </Card>

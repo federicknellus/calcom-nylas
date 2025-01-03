@@ -48,7 +48,7 @@ export default function SuccessPage() {
         </CardContent>
         <CardFooter>
           <Button className="w-full" asChild>
-            <Link href="/">Close this Page</Link>
+            <Link href="/">Termina</Link>
           </Button>
         </CardFooter>
       </Card>

@@ -86,13 +86,13 @@ model Availability {
 }
 
 enum Day {
-  Lunedì
-  Martedì
-  Mercoledì
-  Giovedì
-  Venerdì
-  Sabato
-  Domenica
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
 }
 
 model EventType {
@@ -103,6 +103,7 @@ model EventType {
   description       String
   active            Boolean @default(true)
   videoCallSoftware String  @default("Google Meet")
+  configurationId   String  @default("1")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
