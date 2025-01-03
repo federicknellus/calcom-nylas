@@ -104,9 +104,20 @@ model EventType {
   active            Boolean @default(true)
   videoCallSoftware String  @default("Google Meet")
   configurationId   String  @unique
+  meetings Meeting[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   createdAt DateTime @default(now())
+}
+
+model Meeting {
+  id              String    @id @default(uuid())
+  bookingId       String    @unique
+  configurationId String    @unique
+  eventType       EventType @relation(fields: [configurationId], references: [configurationId])
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
