@@ -393,7 +393,7 @@ export async function createMeetingAction(formData: FormData) {
 
   // Calculate the end time by adding the meeting length (in minutes) to the start time
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-  await nylas.scheduler.bookings.create({
+  const booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
       endTime: Math.floor(endDateTime.getTime() / 1000),
@@ -407,7 +407,7 @@ export async function createMeetingAction(formData: FormData) {
       configurationId: eventTypeData?.configurationId as string,
     },
   });
-
+  console.log(booking)
   return redirect(`/success`);
 }
 
