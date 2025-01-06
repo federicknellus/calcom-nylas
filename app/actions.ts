@@ -410,12 +410,18 @@ export async function createMeetingAction(formData: FormData) {
   });
   console.log(booking)
 
-  const data = await prisma.meeting.create({
+
+  const data = await prisma.booking.create({
     data: {
+      name: formData.get("name") as string,
+      contact: formData.get("email") as string,
       configurationId: eventTypeData?.configurationId as string,
       bookingId: booking.data.bookingId,
+      startTime: Math.floor(startDateTime.getTime() / 1000),
+      endTime: Math.floor(endDateTime.getTime() / 1000),
     }
   });
+  console.log('Booking salvato sul DB -------',data);
 
   return redirect(`/success`);
 }
@@ -454,16 +460,17 @@ export async function cancelMeetingAction(formData: FormData) {
 
 
 export async function rescheduleMeetingAction(
-  {config_id, booking_id, formData}:
-  {config_id: string, booking_id:string, formData: FormData}) {
-
+  formData:FormData) {
+  console.log('sei nel posto giusto')
+  const booking_id = formData.get("bookingId") as string;
+  const config_id = formData.get("configId") as string;
   const formTime = formData.get("fromTime") as string;
   const meetingLength = Number(formData.get("meetingLength"));
   const eventDate = formData.get("eventDate") as string;
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
 
-    const booking = await nylas.scheduler.bookings.reschedule({
+    const rescheduledBooking = await nylas.scheduler.bookings.reschedule({
       queryParams: {
         configurationId: config_id,
       },
@@ -473,7 +480,16 @@ export async function rescheduleMeetingAction(
         endTime: Math.floor(endDateTime.getTime() / 1000),
       },
     });
-
+    prisma.booking.update({
+      where: {
+        bookingId: booking_id,
+      },
+      data: {
+        startTime: Math.floor(startDateTime.getTime() / 1000),
+        endTime: Math.floor(endDateTime.getTime() / 1000),
+      },
+    });
+    console.log('rescheduled booking',rescheduledBooking)
 }
 
 
