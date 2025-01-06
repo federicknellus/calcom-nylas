@@ -62,7 +62,7 @@ const BookingPage = async ({
   // Await the `params` before using its properties
   const resolvedParams = await Promise.resolve(params);
   const resolvedSearchParams = await Promise.resolve(searchParams);
-console.log(resolvedParams, resolvedSearchParams)
+// console.log(resolvedParams, resolvedSearchParams)
   const { username, eventName } = resolvedParams;
 
   const selectedDate = resolvedSearchParams.date

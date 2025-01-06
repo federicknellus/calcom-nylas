@@ -421,7 +421,7 @@ export async function createMeetingAction(formData: FormData) {
       endTime: Math.floor(endDateTime.getTime() / 1000),
     }
   });
-  console.log('Booking salvato sul DB -------',data);
+  // console.log('Booking salvato sul DB -------',data);
 
   return redirect(`/success`);
 }

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  console.log("Received callback from Nylas");
+  // console.log("Received callback from Nylas");
   const session = await requireUser();
   const url = new URL(req.url as string);
   const code = url.searchParams.get("code");
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.log({ grantId });
+    // console.log({ grantId });
   } catch (error) {
     console.error("Errore, nessun token per codice:", error);
   }
