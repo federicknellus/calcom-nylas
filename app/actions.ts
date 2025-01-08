@@ -159,7 +159,8 @@ export async function CreateEventTypeAction(
       eventBooking: {
     title: submission.value.title,
     description: submission.value.description,
-    disableEmails: false,
+    // TODO: mettere true appena abbiamo whatsapp pronto
+    disableEmails: false, 
     bookingType: 'booking',
 
       // when: {

@@ -32,7 +32,7 @@ export function RenderCalendar({ daysofWeek }: iAppProps) {
   }, [searchParams]);
 
   const handleChangeDate = (date: DateValue) => {
-    console.log(date);
+    // console.log(date);
     setDate(date as CalendarDate);
     const url = new URL(window.location.href);
 

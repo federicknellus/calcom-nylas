@@ -41,14 +41,16 @@ async function getData(userId: string) {
       calendarId: userData?.grantEmail as string,
     },
   });
-
+  
   return {data, userData};
 }
+
+ 
 
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
-  // console.log(data.data.data[0]);
+  console.log(data.data.data);
 
   return (
     <>
