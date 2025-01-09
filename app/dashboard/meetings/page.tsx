@@ -3,7 +3,7 @@ import { EmptyState } from "@/app/components/dashboard/EmptyState";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { auth } from "@/app/lib/auth";
 import { nylas } from "@/app/lib/nylas";
-import { Trash2 as Trash} from "lucide-react";
+import { Phone, Trash2 as Trash} from "lucide-react";
 
 import {
   Card,
@@ -18,7 +18,32 @@ import { format, fromUnixTime } from "date-fns";
 import { Icon, Video } from "lucide-react";
 import React from "react";
 import { redirect } from "next/navigation";
+import { config } from "process";
+export function uuidsToCompactString(uuid1, uuid2, salt = "") {
+  // Function to convert UUID string to a buffer
+  function uuidToBuffer(uuid) {
+    const hex = uuid.replace(/-/g, ""); // Remove dashes
+    return Buffer.from(hex, "hex");
+  }
 
+  // Convert UUID strings to buffers
+  const uuidBuffer1 = uuidToBuffer(uuid1);
+  const uuidBuffer2 = uuidToBuffer(uuid2);
+
+  // Convert salt to a buffer
+  const saltBuffer = Buffer.from(salt);
+
+  // Combine buffers into one
+  const combinedBuffer = Buffer.concat([uuidBuffer1, uuidBuffer2, saltBuffer]);
+
+  // Encode to Base64 and make it URL-safe
+  const compactString = combinedBuffer
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+
+  return compactString;
+}
 async function getData(userId: string) {
 
   const userData = await prisma.user.findUnique({
@@ -41,17 +66,61 @@ async function getData(userId: string) {
       calendarId: userData?.grantEmail as string,
     },
   });
+
+  const configurations = await prisma.eventType.findMany({
+    where: {
+      userId: userId,
+      active: true,
+    },
+    select: {
+      configurationId: true,
+      title: true,
+      duration: true,
+      description: true,
+    }
+  });
   
-  return {data, userData};
+  // Create an array to store all bookings with their configurations
+  let allBookingsWithConfig = [];
+  
+  for (const config of configurations) {
+    const bookings = await prisma.booking.findMany({
+      where: {
+        configurationId: config.configurationId,
+      },
+      select: {
+        bookingId: true,
+        startTime: true,
+        endTime: true,
+        name: true,
+        contact: true,
+      },
+    });
+    
+    const listOfBookings = bookings.map(booking => ({
+      ...booking,
+      ...config
+    }));
+    
+    // Add the current configuration's bookings to the main array
+    allBookingsWithConfig = [...allBookingsWithConfig, ...listOfBookings];
+  }
+  
+  // Now allBookingsWithConfig contains all bookings with their configuration data
+  
+  
+  
+  return {data, userData, allBookingsWithConfig};
 }
+
 
  
 
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
-  console.log(data.data.data);
-
+  console.log(data.userData);
+  const bookings = data.allBookingsWithConfig;
   return (
     <>
       {data.data.length < 1 ? (
@@ -70,20 +139,20 @@ const MeetingsPage = async () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {data.data.data.map((item) => (
+            {bookings.map((item) => (
               <form key={item.id} action={cancelMeetingAction}>
                 <input type="hidden" name="eventId" value={item.id} />
                 <div className="grid grid-cols-3 justify-between items-center">
                   <div>
                     <p className="text-muted-foreground text-sm">
-                      {format(fromUnixTime(item.when.startTime), "EEE, dd MMM")}
+                      {format(fromUnixTime(item.startTime), "EEE, dd MMM")}
                     </p>
                     <p className="text-muted-foreground text-xs pt-1">
-                      {format(fromUnixTime(item.when.startTime), "hh:mm a")} -{" "}
-                      {format(fromUnixTime(item.when.endTime), "hh:mm a")}
+                      {format(fromUnixTime(item.startTime), "hh:mm a")} -{" "}
+                      {format(fromUnixTime(item.endTime), "hh:mm a")}
                     </p>
                     <div className="flex items-center mt-1">
-                    <Video
+                    <Phone
                       className={`size-4 mr-2 ${
                         item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
                       }`}
@@ -95,7 +164,8 @@ const MeetingsPage = async () => {
                       target="_blank"
                       href={item.conferencing?.details?.url || "#"}
                     >
-                      {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"}
+                      {/* {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"} */}
+                      {item.contact}
                     </a>
                   </div>
 
@@ -103,7 +173,8 @@ const MeetingsPage = async () => {
                   <div className="flex flex-col items-start">
                     <h2 className="text-sm font-medium">{item.title}</h2>
                     <p className="text-sm text-muted-foreground">
-                      Tu e {item.participants[0]?.name || item.participants[0]?.email || "basta"}
+                      {/* Tu e {item.participants[0]?.name || item.participants[0]?.email || "basta"} */}
+                      {item.name}
                     </p>
 
                   </div>
@@ -112,13 +183,14 @@ const MeetingsPage = async () => {
                       text="Modifica Evento"
                       variant="secondary"
                       className="w-fit flex "
-                      redirectUrl={`${process.env.NEXT_PUBLIC_URL}/${data.userData.username}/DodoGro`}
+                      redirectUrl={`${process.env.NEXT_PUBLIC_URL}/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}
                     />
                     <SubmitButton
                       text=" "
                       icon={<Trash size={16} name="trash" />}
                       variant="destructive"
                       className="w-fit flex "
+
                     />
                   </div>
                 </div>

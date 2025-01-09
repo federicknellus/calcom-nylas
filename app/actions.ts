@@ -197,7 +197,7 @@ export async function CreateEventTypeAction(
     },
   });
 
-  console.log("Configuration",configuration.data.scheduler?.reschedulingUrl);
+  // console.log("Configuration",configuration.data.scheduler?.reschedulingUrl);
 
   // console.log("General",configuration);
   // console.log("Partecipanti",configuration.data.participants)
@@ -412,7 +412,7 @@ export async function createMeetingAction(formData: FormData) {
   // Risultato: "8 gennaio 2025 dalle 08:00 alle 08:45"
   const data_whatsapp = `${startDateTime.getDate()} ${startDateTime.toLocaleString('it-IT', { month: 'long' })} ${startDateTime.getFullYear()}`
   const ora_whatsapp = `${formattedStartTime}`
-  console.log('------------??',data_whatsapp, ora_whatsapp, eventTypeData?.title, getUserData?.name);
+  // console.log('------------??',data_whatsapp, ora_whatsapp, eventTypeData?.title, getUserData?.name);
   const booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
@@ -427,7 +427,7 @@ export async function createMeetingAction(formData: FormData) {
       configurationId: eventTypeData?.configurationId as string,
     },
   });
-  console.log(booking)
+  // console.log(booking)
 
 
   const data = await prisma.booking.create({
@@ -490,7 +490,7 @@ export async function createMeetingAction(formData: FormData) {
       });
   
       const result = await response.json();
-      console.log('Success:', result);
+      // console.log('Success:', result);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -535,7 +535,7 @@ export async function cancelMeetingAction(formData: FormData) {
 
 export async function rescheduleMeetingAction(
   formData:FormData) {
-  console.log('sei nel posto giusto')
+
   const booking_id = formData.get("bookingId") as string;
   const config_id = formData.get("configId") as string;
   const formTime = formData.get("fromTime") as string;
@@ -543,7 +543,8 @@ export async function rescheduleMeetingAction(
   const eventDate = formData.get("eventDate") as string;
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-
+  console.log(startDateTime) 
+  console.log('times', Math.floor(startDateTime.getTime() / 1000))
     const rescheduledBooking = await nylas.scheduler.bookings.reschedule({
       queryParams: {
         configurationId: config_id,
@@ -554,16 +555,19 @@ export async function rescheduleMeetingAction(
         endTime: Math.floor(endDateTime.getTime() / 1000),
       },
     });
-    prisma.booking.update({
+    const rescheduledPrisma = await prisma.booking.update({
       where: {
         bookingId: booking_id,
       },
       data: {
         startTime: Math.floor(startDateTime.getTime() / 1000),
         endTime: Math.floor(endDateTime.getTime() / 1000),
+        updatedAt: new Date(),
       },
     });
     console.log('rescheduled booking',rescheduledBooking)
+    console.log('rescheduled booking',rescheduledPrisma)
+
 }
 
 
