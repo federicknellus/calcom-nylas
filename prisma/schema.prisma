@@ -120,7 +120,7 @@ model Booking {
   name      String
   contact   String
 
-  configurationId String    @unique
+  configurationId String    
   eventType       EventType @relation(fields: [configurationId], references: [configurationId])
 
   createdAt DateTime @default(now())

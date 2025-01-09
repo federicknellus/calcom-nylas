@@ -153,6 +153,10 @@ const BookingPage = async ({
                 <Label>La tua email</Label>
                 <Input name="email" placeholder="mariorossi@gmail.com" />
               </div>
+              <div className="flex flex-col gap-y-1">
+                <Label>Il tuo numero</Label>
+                <Input name="phone" placeholder="3312523920" />
+              </div>
 
               <SubmitButton text="Prenota" />
             </form>

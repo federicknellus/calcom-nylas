@@ -13,6 +13,8 @@ import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
+import { start } from "repl";
+import { get } from "http";
 
 export async function onboardingAction(prevState: any, formData: FormData) {
   const session = await requireUser();
@@ -361,6 +363,7 @@ export async function createMeetingAction(formData: FormData) {
     select: {
       grantEmail: true,
       grantId: true,
+      name: true,
     },
   });
 
@@ -392,8 +395,23 @@ export async function createMeetingAction(formData: FormData) {
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
   // Calculate the end time by adding the meeting length (in minutes) to the start time
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-
-
+  
+  
+  
+  
+  
+  const timeFormatter = new Intl.DateTimeFormat('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  
+  const formattedStartTime = timeFormatter.format(startDateTime); // "08:00"
+  
+  // Risultato: "8 gennaio 2025 dalle 08:00 alle 08:45"
+  const data_whatsapp = `${startDateTime.getDate()} ${startDateTime.toLocaleString('it-IT', { month: 'long' })} ${startDateTime.getFullYear()}`
+  const ora_whatsapp = `${formattedStartTime}`
+  console.log('------------??',data_whatsapp, ora_whatsapp, eventTypeData?.title, getUserData?.name);
   const booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
@@ -422,7 +440,62 @@ export async function createMeetingAction(formData: FormData) {
     }
   });
   // console.log('Booking salvato sul DB -------',data);
-
+  const sendWhatsAppMessage = async () => {
+    const url = 'https://graph.facebook.com/v21.0/501361633063986/messages';
+    
+    const data = {
+      messaging_product: "whatsapp",
+      to: '39' + (formData.get("phone") as string),
+      type: "template",
+      template: {
+      name: "event_details_reminder_2",
+      language: {
+        code: "it"
+      },
+      components: [
+        {
+        type: "body",
+        parameters: [
+          {
+          type: "text",
+          text: eventTypeData?.title
+          },
+          {
+          type: "text",
+          text: getUserData?.name
+          },
+          {
+          type: "text",
+          text: data_whatsapp
+          },
+          {
+          type: "text",
+          text: ora_whatsapp
+          }
+        ]
+        }
+      ]
+      }
+    };
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer EAAIX199qwaUBO3G406dx8iurcy6sCWxo5RyZBYkhErdfdsW7F98foZBIrtkhgDZALaCzWP4gncJgQsag959XHRCUTPPDeMTWfmWxoKnc2bAgtld6k65KpPr60YXs58Il4uFQqqxobF414nZCUD0v8ESOe1vximAVz5tqpLXQxFOY8WsDGvU92ZCZBvoRjbPbOicEYuZBaBBZCOPBexqo7z2SJ3G1S8ZCBEhen0IuzQpI0SQ8ZD',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+  
+      const result = await response.json();
+      console.log('Success:', result);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  sendWhatsAppMessage();
   return redirect(`/success`);
 }
 
