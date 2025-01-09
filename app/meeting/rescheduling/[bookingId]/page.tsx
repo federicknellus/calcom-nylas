@@ -15,37 +15,7 @@ import React, { use } from "react";
 import { nylas } from "@/app/lib/nylas";
 import { CalendarCheck2 } from "lucide-react";
 
-export function compactStringToUUIDs(compactString) {
-  // Decode the Base64 string to a buffer
-  const buffer = Buffer.from(compactString, "base64");
 
-  // Extract UUIDs (16 bytes each)
-  const uuidBytes1 = buffer.slice(0, 16);
-  const uuidBytes2 = buffer.slice(16, 32);
-
-  // Extract the remainder as the salt
-  const salt = buffer.slice(32);
-
-  // Function to convert a buffer to UUID string format
-  function bufferToUUID(buffer) {
-    const hex = buffer.toString("hex");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
-      12,
-      16
-    )}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-  // Convert buffers to UUID strings
-  const uuid1 = bufferToUUID(uuidBytes1);
-  const uuid2 = bufferToUUID(uuidBytes2);
-
-  // Convert salt buffer to URL-safe base64
-  const b64EncodedSalt = salt
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  return [uuid1, uuid2, b64EncodedSalt];
-}
 async function getAvailability(username: string, eventName: string) {
   const eventType = await prisma.eventType.findFirst({
     where: {
@@ -88,17 +58,14 @@ const Reschedule = async ({
   params,
   searchParams,
 }: {
-  params: { bookingRef: string };
+  params: { bookingId: string };
   searchParams: { date?: string; time?: string };
 }) => {
-  const { bookingRef } = await Promise.resolve(params);
-  // console.log("bookingRef", bookingRef);
-  const bookingData = compactStringToUUIDs(bookingRef);
-  // console.log("Booking Data", bookingData);
+  const { bookingId } = await Promise.resolve(params);
 
   const oldBooking = await prisma.booking.findUnique({
     where: {
-      bookingId: bookingData[1],
+      bookingId:bookingId,
     },
     select: {
       startTime: true,
@@ -111,18 +78,9 @@ const Reschedule = async ({
 
   async function fetchBookingById() {
     try {
-      const booking = await nylas.scheduler.bookings.find({
-        queryParams: {
-          configurationId: bookingData[0],
-        },
-        bookingId: bookingData[1],
-      });
-      // console.log("Booking", booking);
-
-      const eventId = booking.data.eventId;
       const eventData = await prisma.eventType.findFirst({
         where: {
-          configurationId: bookingData[0],
+          configurationId: oldBooking?.configurationId,
         },
         select: {
           title: true,
@@ -132,7 +90,7 @@ const Reschedule = async ({
           userId: true,
         },
       });
-      // console.log("-----------", eventData);
+      
       const userId = eventData?.userId;
 
       return eventData;
@@ -258,8 +216,8 @@ const Reschedule = async ({
               action={rescheduleMeetingAction}
               className="flex flex-col gap-y-4"
             >
-              <input type="hidden" name="configId" value={bookingData[0]} />
-              <input type="hidden" name="bookingId" value={bookingData[1]} />
+              <input type="hidden" name="configId" value={oldBooking?.configurationId} />
+              <input type="hidden" name="bookingId" value={bookingId} />
               <input
                 type="hidden"
                 name="fromTime"
