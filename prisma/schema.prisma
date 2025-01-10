@@ -119,6 +119,7 @@ model Booking {
   endTime   Int
   name      String
   contact   String
+  isDeleted  Boolean @default(false)
 
   configurationId String    
   eventType       EventType @relation(fields: [configurationId], references: [configurationId])

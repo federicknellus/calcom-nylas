@@ -520,14 +520,47 @@ export async function cancelMeetingAction(formData: FormData) {
   if (!userData) {
     throw new Error("User not found");
   }
-
-  const data = await nylas.events.destroy({
-    eventId: formData.get("eventId") as string,
-    identifier: userData?.grantId as string,
-    queryParams: {
-      calendarId: userData?.grantEmail as string,
+  const booking = await prisma.booking.findUnique({
+    where: {
+      bookingId: formData.get("bookingId") as string,
     },
-  });
+    select:{
+      configurationId: true,
+    }
+  })
+  console.log('ID',formData.get("bookingId") as string)
+  console.log('config',booking?.configurationId)
+  const find = await nylas.scheduler.bookings.find({
+    bookingId: formData.get("bookingId") as string,
+    queryParams: {
+      configurationId: booking?.configurationId as string,
+    },
+  })
+  console.log('find',find)
+  const data = await nylas.scheduler.bookings.destroy({
+    bookingId: formData.get("bookingId") as string,
+    queryParams: {
+      configurationId: booking?.configurationId,
+    },
+  })
+
+  // const deletedBooking = await prisma.booking.update({
+  //   where:{
+  //     bookingId: formData.get("bookingId") as string,
+  //   },
+  //   data:{
+  //     isDeleted: true,
+  //   }
+  // })
+
+
+  // const data = await nylas.events.destroy({
+  //   eventId: formData.get("eventId") as string,
+  //   identifier: userData?.grantId as string,
+  //   queryParams: {
+  //     calendarId: userData?.grantEmail as string,
+  //   },
+  // });
 
   revalidatePath("/dashboard/meetings");
 }

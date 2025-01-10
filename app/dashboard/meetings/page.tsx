@@ -19,6 +19,10 @@ import { Icon, Video } from "lucide-react";
 import React from "react";
 import { redirect } from "next/navigation";
 import { config } from "process";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { DeleteEventDialog } from "@/app/components/dashboard/DeleteEventDialog";
+import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
 export function uuidsToCompactString(uuid1, uuid2, salt = "") {
   // Function to convert UUID string to a buffer
   function uuidToBuffer(uuid) {
@@ -87,6 +91,7 @@ async function getData(userId: string) {
     const bookings = await prisma.booking.findMany({
       where: {
         configurationId: config.configurationId,
+        isDeleted: false,
       },
       select: {
         bookingId: true,
@@ -121,6 +126,7 @@ const MeetingsPage = async () => {
   const data = await getData(session?.user?.id as string);
   console.log(data.userData);
   const bookings = data.allBookingsWithConfig;
+  
   return (
     <>
       {data.data.length < 1 ? (
@@ -140,10 +146,11 @@ const MeetingsPage = async () => {
           </CardHeader>
           <CardContent>
             {bookings.map((item) => (
-              <form key={item.id} action={cancelMeetingAction}>
+              <form key={item.bookingId} action={cancelMeetingAction}>
                 <input type="hidden" name="eventId" value={item.id} />
                 <div className="grid grid-cols-3 justify-between items-center">
                   <div>
+                
                     <p className="text-muted-foreground text-sm">
                       {format(fromUnixTime(item.startTime), "EEE, dd MMM")}
                     </p>
@@ -179,12 +186,16 @@ const MeetingsPage = async () => {
 
                   </div>
                   <div className="flex flex-row ml-auto space-x-2">
-                    <SubmitButton
+                    <Link href={`/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}>
+                      <Button variant={"secondary"}>Ripianifica</Button>
+                    </Link>
+                    {/* <SubmitButton
                       text="Modifica Evento"
                       variant="secondary"
                       className="w-fit flex "
                       redirectUrl={`${process.env.NEXT_PUBLIC_URL}/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}
-                    />
+                    /> */}
+                    <DeleteEventWrapper eventId={item.bookingId} />
                     <SubmitButton
                       text=" "
                       icon={<Trash size={16} name="trash" />}
