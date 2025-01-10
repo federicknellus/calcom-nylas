@@ -70,34 +70,6 @@ const BookingPage = async ({
               </div>
             </CardHeader>
           </Card>
-  
-          <Card className="bg-transparent border-transparent shadow-none">
-            <Separator />
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-primary" />
-                Quando ci sono
-              </CardTitle>
-              <CardDescription>Controlla in fondo alla pagina le mie disponibilità rispetto ai servizi specifici</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 ">
-                {availabilities.map((availability) => (
-                  <div
-                    key={availability.id}
-                    className="flex items-center justify-between rounded-md hover:bg-accent transition-colors p-1"
-                  >
-                    <span className="font-medium">{translateDayToItalian(availability.day)}</span>
-                    <span className="text-muted-foreground">
-                      {availability.fromTime} - {availability.tillTime}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-  
-          {/* Services */}
           <Card className="bg-transparent border-transparent shadow-none">
             <Separator />
             <CardHeader>
@@ -130,6 +102,34 @@ const BookingPage = async ({
               </div>
             </CardContent>
           </Card>
+          <Card className="bg-transparent border-transparent shadow-none">
+            <Separator />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5 text-primary" />
+                Quando ci sono
+              </CardTitle>
+              <CardDescription>Controlla in fondo alla pagina le mie disponibilità rispetto ai servizi specifici</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 ">
+                {availabilities.map((availability) => (
+                  <div
+                    key={availability.id}
+                    className="flex items-center justify-between rounded-md hover:bg-accent transition-colors p-1"
+                  >
+                    <span className="font-medium">{translateDayToItalian(availability.day)}</span>
+                    <span className="text-muted-foreground">
+                      {availability.fromTime} - {availability.tillTime}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+  
+          {/* Services */}
+          
         </div>
       </div>
     )
