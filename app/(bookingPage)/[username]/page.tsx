@@ -1,17 +1,12 @@
-import { createMeetingAction } from "@/app/actions";
-import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
-import { SubmitButton } from "@/app/components/SubmitButton";
-import { TimeSlots } from "@/app/components/TimeSlots";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { CalendarDays, Clock } from 'lucide-react'
+import Link from "next/link"
 import prisma from "@/lib/db";
-import { format } from "date-fns";
-import { BookMarked, CalendarX2, Clock } from "lucide-react";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 import React from "react";
+import { translateDayToItalian } from "@/app/lib/translateDayToItalian"
+
 const BookingPage = async ({
     params,
     
@@ -56,26 +51,91 @@ const BookingPage = async ({
     }) 
   
     return (
-
-      <div className="">
-          <p className="font-bold">Dettagli Professionista</p>
-        
-          <p>{userData?.image}</p>
-          <p>{userData?.name}</p>
-          
-          <p className="font-bold">Disponibilità</p>
-          {availabilities.map((availability) => (
-            <p key={availability.id}>{availability.day}: {availability.fromTime} - {availability.tillTime}</p>
-          ))}
-
-        <p className="font-bold">Servizi</p>
-
-          {events.map((event) => (
-            <p key={event.id}>{event.title} | {event.description} | {event.duration} | {event.url}</p>
-          ))}
+      <div className="min-h-screen p-4 md:p-4 bg-transparent border-transparent shadow-none">
+        <div className="max-w-4xl mx-auto space-y-2">
+          {/* Professional Details */}
+          <Card className="bg-transparent border-transparent shadow-none">
+            <CardHeader>
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={userData?.image || ''} alt={userData?.name || 'Professional'} />
+                  <AvatarFallback>{userData?.name?.[0] || 'P'}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="text-2xl font-bold text-primary">
+                    {userData?.name}
+                  </CardTitle>
+                  <p className="text-muted-foreground">I miei servizi</p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+  
+          <Card className="bg-transparent border-transparent shadow-none">
+            <Separator />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5 text-primary" />
+                Quando ci sono
+              </CardTitle>
+              <CardDescription>Controlla in fondo alla pagina le mie disponibilità rispetto ai servizi specifici</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 ">
+                {availabilities.map((availability) => (
+                  <div
+                    key={availability.id}
+                    className="flex items-center justify-between rounded-md hover:bg-accent transition-colors p-1"
+                  >
+                    <span className="font-medium">{translateDayToItalian(availability.day)}</span>
+                    <span className="text-muted-foreground">
+                      {availability.fromTime} - {availability.tillTime}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+  
+          {/* Services */}
+          <Card className="bg-transparent border-transparent shadow-none">
+            <Separator />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                I servizi disponibili
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {events.map((event) => (
+                  <Link
+                    key={event.id}
+                    href={`/${username}/${event.url}`}
+                    className="block"
+                  >
+                    <div className="p-2 rounded-lg border bg-card hover:bg-accent transition-colors">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-lg">{event.title}</h3>
+                          <p className="text-muted-foreground mt-1">{event.description}</p>
+                        </div>
+                        <span className="text-primary font-medium">
+                          {event.duration} min
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    );
-  };
+    )
+  }
+  
+  
   
   export default BookingPage;
   
