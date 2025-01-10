@@ -22,6 +22,9 @@ import { DasboardLinks } from "../components/dashboard/DasboardLinks";
 import { ThemeToggle } from "../components/dashboard/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 import { auth, signOut } from "../lib/auth";
+import { Link2 } from "lucide-react";
+import { CopyLink } from "../components/dashboard/CopyLinkMenuItem";
+
 
 async function getData(id: string) {
   const data = await prisma.user.findUnique({
@@ -106,8 +109,10 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
               </SheetContent>
 
             </Sheet>
-
             <div className="ml-auto flex items-center gap-x-4">
+              <CopyLink
+                        meetingUrl={`${process.env.NEXT_PUBLIC_URL}/${data.username}`}
+                      />
               <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -122,7 +127,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                       width={20}
                       height={20}
                       className="w-full h-full rounded-full bg-opacity-50"
-                    />
+                    /> 
                     <span className="sr-only">Toggle user menu</span>
                   </Button>
                 </DropdownMenuTrigger>
