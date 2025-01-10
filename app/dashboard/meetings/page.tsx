@@ -19,9 +19,11 @@ import { Icon, Video } from "lucide-react";
 import React from "react";
 import { redirect } from "next/navigation";
 import { config } from "process";
-export function uuidsToCompactString(uuid1, uuid2, salt = "") {
+
+
+export function uuidsToCompactString(uuid1:any, uuid2:any, salt = "") {
   // Function to convert UUID string to a buffer
-  function uuidToBuffer(uuid) {
+  function uuidToBuffer(uuid:any) {
     const hex = uuid.replace(/-/g, ""); // Remove dashes
     return Buffer.from(hex, "hex");
   }
@@ -81,7 +83,7 @@ async function getData(userId: string) {
   });
   
   // Create an array to store all bookings with their configurations
-  let allBookingsWithConfig = [];
+  let allBookingsWithConfig:any[] = [];
   
   for (const config of configurations) {
     const bookings = await prisma.booking.findMany({
@@ -114,13 +116,12 @@ async function getData(userId: string) {
 }
 
 
- 
-
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
   console.log(data.userData);
   const bookings = data.allBookingsWithConfig;
+  console.log(bookings);
   return (
     <>
       {data.data.length < 1 ? (
@@ -140,7 +141,7 @@ const MeetingsPage = async () => {
           </CardHeader>
           <CardContent>
             {bookings.map((item) => (
-              <form key={item.id} action={cancelMeetingAction}>
+              <form key={item.bookingId} action={cancelMeetingAction}>
                 <input type="hidden" name="eventId" value={item.id} />
                 <div className="grid grid-cols-3 justify-between items-center">
                   <div>

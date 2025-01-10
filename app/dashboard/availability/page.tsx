@@ -22,6 +22,7 @@ import { notFound } from "next/navigation";
 import React from "react";
 import { requireUser } from "@/app/lib/hooks";
 import { updateAvailabilityAction } from "@/app/actions";
+import { translateDayToItalian } from "@/app/lib/translateDayToItalian"
 
 async function getData(userId: string) {
   const data = await prisma.availability.findMany({
@@ -37,18 +38,6 @@ async function getData(userId: string) {
   return data;
 }
 
-function translateDayToItalian(day: string): string {
-  const translations: { [key: string]: string } = {
-    Monday: "Lunedì",
-    Tuesday: "Martedì",
-    Wednesday: "Mercoledì",
-    Thursday: "Giovedì",
-    Friday: "Venerdì",
-    Saturday: "Sabato",
-    Sunday: "Domenica",
-  };
-  return translations[day] || day; // Fallback to the original day if not found
-}
 
 const AvailabilityPage = async () => {
   const session = await requireUser();

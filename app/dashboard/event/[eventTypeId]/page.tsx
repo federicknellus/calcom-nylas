@@ -32,6 +32,7 @@ const EditEventTypePage = async ({
   const data = await getData(eventTypeId);
 
   return (
+    
     <EditEventTypeForm
       description={data.description}
       duration={data.duration}
@@ -41,6 +42,7 @@ const EditEventTypePage = async ({
       id={data.id}
       callProvider={data.videoCallSoftware}
     />
+
   );
 };
 
