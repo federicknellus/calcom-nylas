@@ -20,6 +20,10 @@ model User {
   email         String         @unique
   emailVerified DateTime?
   image         String?        @default("https://avatars.githubusercontent.com/u/10367109?v=4")
+  citta         String?
+  indirizzo     String?
+  nome_studio   String?
+  telefono      String?
   accounts      Account[]
   sessions      Session[]
   grantId       String?

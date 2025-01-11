@@ -58,6 +58,11 @@ export const aboutSettingsSchema = z.object({
     .min(3, { message: "Almeno 3 caratteri" })
     .max(150, { message: "Non puoi superare i 150 caratteri" }),
   profileImage: z.string().nonempty({ message: "L'immagine del profilo è obbligatoria" }),
+  citta: z.string().optional(),
+  indirizzo: z.string().optional(),
+  nome_studio: z.string().optional(),
+  telefono: z.string()
+  .min(9, {message: "Sicuro che il numero sia questo?" }),
 });
 
 export const eventTypeSchema = z.object({

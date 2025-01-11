@@ -110,6 +110,10 @@ export async function SettingsAction(prevState: any, formData: FormData) {
     data: {
       name: submission.value.fullName,
       image: submission.value.profileImage,
+      citta: submission.value.citta,
+      indirizzo: submission.value.indirizzo,
+      nome_studio: submission.value.nome_studio,
+      telefono: submission.value.telefono,
     },
   });
 

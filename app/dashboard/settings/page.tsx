@@ -15,6 +15,10 @@ async function getData(id: string) {
       name: true,
       email: true,
       image: true,
+      citta: true,
+      indirizzo: true,
+      nome_studio: true,
+      telefono: true,
     },
   });
 
@@ -33,6 +37,10 @@ const SettingsPage = async () => {
       email={data.email}
       fullName={data.name as string}
       profileImage={data.image as string}
+      citta={data.citta || undefined}
+      indirizzo={data.indirizzo || undefined}
+      nome_studio={data.nome_studio || undefined}
+      telefono={data.telefono || undefined}
     />
   );
 };
