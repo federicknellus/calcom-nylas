@@ -45,6 +45,7 @@
     "react-stately": "^3.34.0",
     "shadcn-ui": "^0.9.4",
     "sonner": "^1.7.1",
+    "sweetalert2": "^11.6.13",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.4.4",

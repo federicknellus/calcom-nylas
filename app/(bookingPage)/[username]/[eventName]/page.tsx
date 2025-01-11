@@ -94,7 +94,7 @@ const BookingPage = async ({
         <Card className="max-w-[600px]">
           <CardContent className="p-5 grid md:grid-cols-[1fr,auto,1fr] gap-4">
             <div>
-            <div className="flex items-center space-x-4">
+              <div className="flex items-end space-x-2">
               <Image
                 src={eventType.user.image as string}
                 alt={`${eventType.user.name}'s profile picture`}
@@ -102,12 +102,12 @@ const BookingPage = async ({
                 width={30}
                 height={30}
               />
-               <CardTitle 
-                className=" text-primary mt-1"
+              </div>
+              <CardTitle 
+                className=" text-primary mt-2"
                >
                 {eventType.user.name}
               </CardTitle>
-              </div>
               <h1 className="text-xl font-semibold mt-2">{eventType.title}</h1>
               <p className="text-sm font-medium text-muted-foreground">
                 {eventType.description}
@@ -123,7 +123,7 @@ const BookingPage = async ({
                 <p className="flex items-center">
                   <Clock className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    {eventType.duration} Mins
+                    {eventType.duration} Min
                   </span>
                 </p>
                 <p className="flex items-center">
@@ -134,12 +134,12 @@ const BookingPage = async ({
                 </p>
                 <div className="flex-grow"></div>
                 <div>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-muted-foreground mt-1">
                 {eventType.user.indirizzo}, {eventType.user.citta}
                 </p>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-muted-foreground mt-1">
                 {eventType.user.telefono}
-              </p>
+                </p>
               </div>
               </div>
             </div>
@@ -183,7 +183,7 @@ const BookingPage = async ({
         <Card className="w-full max-w-[1000px] mx-auto">
           <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr,auto,1fr] md:gap-4">
             <div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-end space-x-2">
               <Image
                 src={eventType.user.image as string}
                 alt={`${eventType.user.name}'s profile picture`}
@@ -191,17 +191,18 @@ const BookingPage = async ({
                 width={30}
                 height={30}
               />
-               <CardTitle 
-                className=" text-primary mt-1"
+               
+              </div>
+              <CardTitle 
+                className=" text-primary mt-2"
                >
                 {eventType.user.name}
               </CardTitle>
-              </div>
               <h1 className="text-xl font-semibold mt-4">{eventType.title}</h1>
               <p className="text-sm font-medium text-muted-foreground">
                 {eventType.description}
               </p>
-              <div className="mt-5 grid gap-y-3">
+              <div className="mt-5 grid grid-flow-row gap-y-3">
                 <p className="flex items-center">
                   <CalendarX2 className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
@@ -212,21 +213,21 @@ const BookingPage = async ({
                 <p className="flex items-center">
                   <Clock className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    {eventType.duration} Mins
+                    {eventType.duration} Min
                   </span>
                 </p>
                 <p className="flex items-center">
                   <BookMarked className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    Google Meet
+                    {eventType.videoCallSoftware}
                   </span>
                 </p>
-                <div className="flex-grow"></div>
+                <div className="flex flex-grow bg-black"></div>
                 <div>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-muted-foreground mt-1">
                 {eventType.user.indirizzo}, {eventType.user.citta}
                 </p>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-muted-foreground mt-1">
                 {eventType.user.telefono}
               </p>
               </div>
