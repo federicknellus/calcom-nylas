@@ -19,11 +19,12 @@ import { Icon, Video } from "lucide-react";
 import React from "react";
 import { redirect } from "next/navigation";
 import { config } from "process";
+import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { DeleteEventDialog } from "@/app/components/dashboard/DeleteEventDialog";
-import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
-export function uuidsToCompactString(uuid1, uuid2, salt = "") {
+
+
+export function uuidsToCompactString(uuid1:any, uuid2:any, salt = "") {
   // Function to convert UUID string to a buffer
   function uuidToBuffer(uuid:any) {
     const hex = uuid.replace(/-/g, ""); // Remove dashes
@@ -125,7 +126,6 @@ const MeetingsPage = async () => {
   console.log(data.userData);
   const bookings = data.allBookingsWithConfig;
   
-  console.log(bookings);
   return (
     <>
       {data.data.length < 1 ? (
@@ -145,7 +145,6 @@ const MeetingsPage = async () => {
           </CardHeader>
           <CardContent>
             {bookings.map((item) => (
-              <form key={item.bookingId} action={cancelMeetingAction}>
               <form key={item.bookingId} action={cancelMeetingAction}>
                 <input type="hidden" name="eventId" value={item.id} />
                 <div className="grid grid-cols-3 justify-between items-center">
@@ -196,13 +195,13 @@ const MeetingsPage = async () => {
                       redirectUrl={`${process.env.NEXT_PUBLIC_URL}/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}
                     /> */}
                     <DeleteEventWrapper eventId={item.bookingId} />
-                    <SubmitButton
+                    {/* <SubmitButton
                       text=" "
                       icon={<Trash size={16} name="trash" />}
                       variant="destructive"
                       className="w-fit flex "
 
-                    />
+                    /> */}
                   </div>
                 </div>
                 <Separator className="my-3" />

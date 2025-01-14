@@ -6,6 +6,7 @@ import Link from "next/link"
 import prisma from "@/lib/db";
 import React from "react";
 import { translateDayToItalian } from "@/app/lib/translateDayToItalian"
+import { notFound } from "next/navigation"
 
 const BookingPage = async ({
     params,
@@ -28,6 +29,9 @@ const BookingPage = async ({
         name: true,
       },
     });
+    if (!userData) {
+      return notFound()
+    }
     const availabilities = await prisma.availability.findMany({
       where: {
         userId: userData?.id,

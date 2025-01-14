@@ -537,13 +537,36 @@ export async function cancelMeetingAction(formData: FormData) {
     },
   })
   console.log('find',find)
-  const data = await nylas.scheduler.bookings.destroy({
-    bookingId: formData.get("bookingId") as string,
+  //TODO qua abbiamo usato questo excamotage perche al momento non abbiamo un metodo per cancellare un booking via api
+
+  const data = await nylas.events.destroy({
+    eventId: find.data.eventId,
+    identifier: userData?.grantId as string,
     queryParams: {
-      configurationId: booking?.configurationId,
+      calendarId: userData?.grantEmail as string,
+      notifyParticipants: false,
     },
   })
+  if (data){
+    await prisma.booking.update({
+      where:{
+        bookingId: formData.get("bookingId") as string,
+      },
+      data:{
+        isDeleted: true,
+      }
+    })
+  }
+  
 
+
+
+
+  //   bookingId: formData.get("bookingId") as string,
+  //   queryParams: {
+  //     configurationId: booking?.configurationId,
+  //   },
+  // })
   // const deletedBooking = await prisma.booking.update({
   //   where:{
   //     bookingId: formData.get("bookingId") as string,
