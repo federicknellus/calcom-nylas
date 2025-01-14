@@ -18,7 +18,7 @@ export function Hero() {
           </h1>
 
           <p className="max-w-xl mx-auto mt-4   lg:text-lg text-muted-foreground ">
-           Gestire un'agenda fitta mentre si lavora è difficile: dimenticare appuntamenti, sovrapporne o spostarli, che dramma! <br></br>
+           Gestire un&apos;agenda fitta mentre si lavora è difficile: dimenticare appuntamenti, sovrapporne o spostarli, che dramma! <br></br>
            ZenCal ti permette di gestire gli appuntamenti...senza gestirli! Ci pensiamo noi!
           </p>
           <div className=" mt-5 mb-12">

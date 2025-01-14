@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useFormStatus } from "react-dom";
-import FacebookLogo from "@/public/facebook.svg";
 import GoogleLogo from "@/public/google.svg";
 import { useRouter } from "next/navigation";
 

@@ -59,7 +59,6 @@ async function getAvailability(selectedDate: Date, userName: string) {
   
   return { data, nylasCalendarData };
 }
-
 function calculateAvailableTimeSlots(
   dbAvailability: {
     fromTime: string | undefined;
@@ -69,7 +68,12 @@ function calculateAvailableTimeSlots(
   date: string,
   duration: number
 ) {
-  const now = new Date(); // Get the current time
+  // First, let's handle the case where we don't have availability data
+  if (!dbAvailability.fromTime || !dbAvailability.tillTime) {
+    return []; // Return empty array if no availability is set
+  }
+
+  const now = new Date();
 
   // Convert DB availability to Date objects
   const availableFrom = parse(
@@ -83,31 +87,44 @@ function calculateAvailableTimeSlots(
     new Date()
   );
 
-  // Extract busy slots from Nylas data
-  const busySlots = nylasData.data[0].timeSlots.map((slot: any) => ({
-    start: fromUnixTime(slot.startTime),
-    end: fromUnixTime(slot.endTime),
-  }));
+  // Properly type and extract busy slots from Nylas data with error handling
+  const busySlots = nylasData.data[0]?.object === 'free_busy'
+    ? nylasData.data[0].timeSlots.map(slot => ({
+        start: fromUnixTime(slot.startTime),
+        end: fromUnixTime(slot.endTime),
+      }))
+    : []; // If we got an error response, treat as no busy slots
 
-  // Generate all possible 30-minute slots within the available time
-  const allSlots = [];
+  // Generate all possible slots within the available time
+  const allSlots: Date[] = [];
   let currentSlot = availableFrom;
+  
   while (isBefore(currentSlot, availableTill)) {
-    allSlots.push(currentSlot);
+    allSlots.push(new Date(currentSlot));
     currentSlot = addMinutes(currentSlot, duration);
   }
 
   // Filter out busy slots and slots before the current time
   const freeSlots = allSlots.filter((slot) => {
     const slotEnd = addMinutes(slot, duration);
+    
+    // Check if the slot is available
     return (
       isAfter(slot, now) && // Ensure the slot is after the current time
-      !busySlots.some(
-        (busy: { start: any; end: any }) =>
-          (!isBefore(slot, busy.start) && isBefore(slot, busy.end)) ||
-          (isAfter(slotEnd, busy.start) && !isAfter(slotEnd, busy.end)) ||
-          (isBefore(slot, busy.start) && isAfter(slotEnd, busy.end))
-      )
+      !busySlots.some((busy) => {
+        // Check three conditions for overlap:
+        
+        // 1. Slot starts during a busy period
+        const startsInBusy = !isBefore(slot, busy.start) && isBefore(slot, busy.end);
+        
+        // 2. Slot ends during a busy period
+        const endsInBusy = isAfter(slotEnd, busy.start) && !isAfter(slotEnd, busy.end);
+        
+        // 3. Slot completely encompasses a busy period
+        const encompassesBusy = isBefore(slot, busy.start) && isAfter(slotEnd, busy.end);
+        
+        return startsInBusy || endsInBusy || encompassesBusy;
+      })
     );
   });
 
@@ -125,8 +142,16 @@ export async function TimeSlots({
     userName
   );
 
-  const dbAvailability = { fromTime: data?.fromTime, tillTime: data?.tillTime };
+  // Early return if no availability is set
+  if (!data?.fromTime || !data?.tillTime) {
+    return (
+      <div>
+        <p>No availability set for this day.</p>
+      </div>
+    );
+  }
 
+  const dbAvailability = { fromTime: data.fromTime, tillTime: data.tillTime };
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
   const availableSlots = calculateAvailableTimeSlots(
@@ -139,7 +164,7 @@ export async function TimeSlots({
   return (
     <div>
       <p className="text-base font-semibold">
-        {format(selectedDate, "EEE")}.{" "}
+        {format(selectedDate, "EEE")}{" "}
         <span className="text-sm text-muted-foreground">
           {format(selectedDate, "MMM. d")}
         </span>

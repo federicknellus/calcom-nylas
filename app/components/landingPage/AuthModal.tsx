@@ -7,7 +7,6 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 
-import { VisuallyHidden } from "react-aria";
 
 import Logo from "@/public/logo.png";
 import Image from "next/image";

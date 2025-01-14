@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import { Navbar } from "./components/landingPage/Navbar";
 import { Hero } from "./components/landingPage/Hero";
-import { Logos } from "./components/landingPage/Logos";
 import { Features } from "./components/landingPage/Features";
-import { Testimonial } from "./components/landingPage/Testimonial";
 import { auth } from "./lib/auth";
 import { CTA } from "./components/landingPage/Cta";
 

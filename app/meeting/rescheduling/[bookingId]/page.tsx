@@ -7,12 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import prisma from "@/lib/db";
-import { format } from "date-fns";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import React, { use } from "react";
-import { nylas } from "@/app/lib/nylas";
+import React from "react";
 import { CalendarCheck2 } from "lucide-react";
 
 
@@ -95,7 +93,7 @@ const Reschedule = async ({
         },
       });
       
-      const userId = eventData?.userId;
+      // const userId = eventData?.userId;
 
       return eventData;
     } catch (error) {
@@ -125,7 +123,10 @@ const Reschedule = async ({
     }
   }
   const userData = await fetchUserData();
-
+  if (!userData) {
+    return notFound();}
+if (userData?.username === null) {
+  return notFound()}
   // console.log(userData, eventData);
   const eventType = await getAvailability(userData?.username, eventData?.url);
   // console.log("-------", eventType);
@@ -142,11 +143,12 @@ const Reschedule = async ({
     day: "numeric",
     month: "long",
   }).format(selectedDate);
-
+if (oldBooking?.startTime === undefined || oldBooking?.endTime === undefined) {
+  return notFound();}
   const start = new Date(oldBooking?.startTime * 1000);
   const end = new Date(oldBooking?.endTime * 1000);
   // Options for formatting in Italian time zone
-  const dateOptions = {
+  const dateOptions: Intl.DateTimeFormatOptions = {
     timeZone: "Europe/Rome",
     weekday: "long",
     day: "numeric",
@@ -154,7 +156,7 @@ const Reschedule = async ({
   };
   
   // Opzioni per formattare solo l'ora (ora:minuti)
-  const timeOptions = {
+  const timeOptions: Intl.DateTimeFormatOptions = {
     timeZone: "Europe/Rome",
     hour: "2-digit",
     minute: "2-digit",
@@ -363,7 +365,7 @@ const Reschedule = async ({
 
             <TimeSlots
               selectedDate={selectedDate}
-              userName={userData?.username}
+              userName={userData?.username || "Errore nel caricare i dati"}
               meetingDuration={eventType.duration}
             />
           </CardContent>

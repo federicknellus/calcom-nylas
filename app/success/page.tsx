@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import Link from "next/link";
 
@@ -19,7 +18,7 @@ export default function SuccessPage() {
           </h1>
           <p className="text-sm text-muted-foreground text-center mt-1">
             Abbiamo inviato una mail di recap a te e il tuo professionista. 
-            In caso di problemi, modifica l'impegno o contatta il tuo professionista.
+            In caso di problemi, modifica l&apos;impegno o contatta il tuo professionista.
           </p>
 
           {/*     <Separator className="my-5" />

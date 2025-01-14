@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from "@/components/ui/sheet";
 import { ReactNode } from "react";
-import { requireUser } from "../lib/hooks";
 import prisma from "../lib/db";
 import { redirect } from "next/navigation";
 import Logo from "@/public/logo.png";
@@ -22,7 +21,6 @@ import { DasboardLinks } from "../components/dashboard/DasboardLinks";
 import { ThemeToggle } from "../components/dashboard/ThemeToggle";
 import { Toaster } from "@/components/ui/sonner";
 import { auth, signOut } from "../lib/auth";
-import { Link2 } from "lucide-react";
 import { CopyLink } from "../components/dashboard/CopyLinkMenuItem";
 
 

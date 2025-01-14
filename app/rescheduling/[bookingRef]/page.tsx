@@ -7,46 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import prisma from "@/lib/db";
-import { format } from "date-fns";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import React, { use } from "react";
+import React from "react";
 import { nylas } from "@/app/lib/nylas";
 import { CalendarCheck2 } from "lucide-react";
+import { compactStringToUUIDs } from "@/lib/utils";
 
-export function compactStringToUUIDs(compactString) {
-  // Decode the Base64 string to a buffer
-  const buffer = Buffer.from(compactString, "base64");
-
-  // Extract UUIDs (16 bytes each)
-  const uuidBytes1 = buffer.slice(0, 16);
-  const uuidBytes2 = buffer.slice(16, 32);
-
-  // Extract the remainder as the salt
-  const salt = buffer.slice(32);
-
-  // Function to convert a buffer to UUID string format
-  function bufferToUUID(buffer) {
-    const hex = buffer.toString("hex");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
-      12,
-      16
-    )}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-  // Convert buffers to UUID strings
-  const uuid1 = bufferToUUID(uuidBytes1);
-  const uuid2 = bufferToUUID(uuidBytes2);
-
-  // Convert salt buffer to URL-safe base64
-  const b64EncodedSalt = salt
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  return [uuid1, uuid2, b64EncodedSalt];
-}
-async function getAvailability(username: string, eventName: string) {
+async function getEventInformation(username: string, eventName: string) {
   const eventType = await prisma.eventType.findFirst({
     where: {
       url: eventName,
@@ -95,10 +64,17 @@ const Reschedule = async ({
   params: { bookingRef: string };
   searchParams: { date?: string; time?: string };
 }) => {
+  // Prendiamo il bookingRef dai parametri
   const { bookingRef } = await Promise.resolve(params);
-  // console.log("bookingRef", bookingRef);
+
+  console.log(
+    "Tentativo di modificare la prenotazione con il bookingRef:",
+    bookingRef
+  );
+
   const bookingData = compactStringToUUIDs(bookingRef);
-  // console.log("Booking Data", bookingData);
+
+  console.log("Ricavate configuration_id e booking_id:", bookingData);
 
   const oldBooking = await prisma.booking.findUnique({
     where: {
@@ -112,7 +88,9 @@ const Reschedule = async ({
       name: true,
     },
   });
-
+  if (!oldBooking) {
+    return notFound();
+  }
   async function fetchBookingById() {
     try {
       const booking = await nylas.scheduler.bookings.find({
@@ -121,9 +99,9 @@ const Reschedule = async ({
         },
         bookingId: bookingData[1],
       });
-      // console.log("Booking", booking);
 
-      const eventId = booking.data.eventId;
+      console.log("Trovato booking dal booking ref:", booking);
+
       const eventData = await prisma.eventType.findFirst({
         where: {
           configurationId: bookingData[0],
@@ -136,8 +114,8 @@ const Reschedule = async ({
           userId: true,
         },
       });
-      // console.log("-----------", eventData);
-      const userId = eventData?.userId;
+
+      console.log("Dati dell'evento relativo alla prenotazione:", eventData);
 
       return eventData;
     } catch (error) {
@@ -146,6 +124,7 @@ const Reschedule = async ({
   }
 
   const eventData = await fetchBookingById();
+
   if (!eventData) {
     return notFound();
   }
@@ -166,14 +145,23 @@ const Reschedule = async ({
       console.error("Error fetching booking", error);
     }
   }
-  const userData = await fetchUserData();
 
-  // console.log(userData, eventData);
-  const eventType = await getAvailability(userData?.username, eventData?.url);
-  // console.log("-------", eventType);
-  if (!eventType) {
+  const userData = await fetchUserData();
+if (!userData) {
     return notFound();
   }
+  if(userData?.username === null){
+    return notFound();
+  }
+
+  const eventInformation = await getEventInformation(userData?.username, eventData?.url);
+
+  console.log('Informazioni sull\'evento:', eventInformation);
+
+  if (!eventInformation) {
+    return notFound();
+  }
+
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const selectedDate = resolvedSearchParams.date
     ? new Date(resolvedSearchParams.date)
@@ -184,32 +172,34 @@ const Reschedule = async ({
     day: "numeric",
     month: "long",
   }).format(selectedDate);
-
+  if(oldBooking?.startTime === null || oldBooking?.endTime === null){
+    return notFound();
+  }
   const start = new Date(oldBooking?.startTime * 1000);
   const end = new Date(oldBooking?.endTime * 1000);
+
   // Options for formatting in Italian time zone
-  const dateOptions = {
+  const dateOptions: Intl.DateTimeFormatOptions = {
     timeZone: "Europe/Rome",
     weekday: "long",
     day: "numeric",
-    month: "long"
+    month: "long",
   };
-  
+
   // Opzioni per formattare solo l'ora (ora:minuti)
-  const timeOptions = {
+  const timeOptions: Intl.DateTimeFormatOptions = {
     timeZone: "Europe/Rome",
     hour: "2-digit",
     minute: "2-digit",
   };
-  
+
   // Formatta la data
   const date = new Intl.DateTimeFormat("it-IT", dateOptions).format(start);
-  
+
   // Formatta gli orari di inizio e fine
   const startTime = new Intl.DateTimeFormat("it-IT", timeOptions).format(start);
   const endTime = new Intl.DateTimeFormat("it-IT", timeOptions).format(end);
   const showForm = !!resolvedSearchParams.date && !!resolvedSearchParams.time;
-  
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
@@ -218,22 +208,20 @@ const Reschedule = async ({
           <CardContent className="p-5 grid md:grid-cols-[1fr,auto,1fr] gap-4">
             <div>
               <div className="flex items-end space-x-2">
-              <Image
-                src={eventType.user.image as string}
-                alt={`${eventType.user.name}'s profile picture`}
-                className="size-9 rounded-full"
-                width={30}
-                height={30}
-              />
+                <Image
+                  src={eventInformation.user.image as string}
+                  alt={`${eventInformation.user.name}'s profile picture`}
+                  className="size-9 rounded-full"
+                  width={30}
+                  height={30}
+                />
               </div>
-              <CardTitle 
-                className=" text-primary mt-2"
-               >
-                {eventType.user.name}
+              <CardTitle className=" text-primary mt-2">
+                {eventInformation.user.name}
               </CardTitle>
               <h1 className="text-xl font-semibold mt-2">Riprogrammazione</h1>
               <p className="text-sm font-medium text-muted-foreground">
-              {eventType.title}
+                {eventInformation.title}
               </p>
 
               <div className="mt-5 grid gap-y-3">
@@ -246,24 +234,24 @@ const Reschedule = async ({
                 <p className="flex items-center">
                   <Clock className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    {eventType.duration} 
+                    {eventInformation.duration}
                   </span>
                 </p>
                 <p className="flex items-center">
                   <BookMarked className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    {eventType.videoCallSoftware}
+                    {eventInformation.videoCallSoftware}
                   </span>
                 </p>
                 <div className="flex-grow"></div>
                 <div>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.indirizzo}, {eventType.user.citta}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.telefono}
-                </p>
-              </div>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventInformation.user.indirizzo}, {eventInformation.user.citta}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventInformation.user.telefono}
+                  </p>
+                </div>
               </div>
             </div>
             <Separator
@@ -290,7 +278,7 @@ const Reschedule = async ({
               <input
                 type="hidden"
                 name="meetingLength"
-                value={eventType.duration}
+                value={eventInformation.duration}
               />
               <div className="flex flex-col gap-y-1">
                 <Label>Il tuo nome</Label>
@@ -321,27 +309,24 @@ const Reschedule = async ({
           </CardContent>
         </Card>
       ) : (
-
         <Card className="w-full max-w-[1000px] mx-auto">
           <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr,auto,1fr] md:gap-4">
             <div>
               <div className="flex items-end space-x-2">
-              <Image
-                src={eventType.user.image as string}
-                alt={`${eventType.user.name}'s profile picture`}
-                className="size-9 rounded-full"
-                width={30}
-                height={30}
-              />
+                <Image
+                  src={eventInformation.user.image as string}
+                  alt={`${eventInformation.user.name}'s profile picture`}
+                  className="size-9 rounded-full"
+                  width={30}
+                  height={30}
+                />
               </div>
-              <CardTitle 
-                className=" text-primary mt-2"
-               >
-                {eventType.user.name}
+              <CardTitle className=" text-primary mt-2">
+                {eventInformation.user.name}
               </CardTitle>
               <h1 className="text-xl font-semibold mt-2"> Riprogrammazione</h1>
               <p className="text-sm font-medium text-muted-foreground">
-              {eventData?.title}
+                {eventData?.title}
               </p>
               <div className="mt-5 grid gap-y-3">
                 <p className="flex items-center">
@@ -351,14 +336,7 @@ const Reschedule = async ({
                   </span>
                 </p>
 
-                {/* <div className="grid grid-cols-3 justify-center">
-                  <div className="col-span-2 flex justify-center">
-                    <ArrowUpDown className="size-4 mr-2 text-muted-foreground"/>
-                  </div>
-                  <div>
-                   
-                  </div>
-                </div> */}
+              
                 <p className="flex items-center">
                   <CalendarCheck2 className="size-4 mr-2 text-green-800" />
                   <span className="text-sm font-medium text-muted-foreground">
@@ -374,18 +352,18 @@ const Reschedule = async ({
                 <p className="flex items-center">
                   <BookMarked className="size-4 mr-2 text-primary" />
                   <span className="text-sm font-medium text-muted-foreground">
-                    {eventType.videoCallSoftware}
+                    {eventInformation.videoCallSoftware}
                   </span>
                 </p>
                 <div className="flex-grow"></div>
                 <div>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.indirizzo}, {eventType.user.citta}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.telefono}
-                </p>
-              </div>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventInformation.user.indirizzo}, {eventInformation.user.citta}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventInformation.user.telefono}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -394,7 +372,7 @@ const Reschedule = async ({
               className="hidden md:block h-full w-[1px]"
             />
             <div className="my-4 md:my-0">
-              <RenderCalendar daysofWeek={eventType.user.Availability} />
+              <RenderCalendar daysofWeek={eventInformation.user.Availability} />
             </div>
 
             <Separator
@@ -405,7 +383,7 @@ const Reschedule = async ({
             <TimeSlots
               selectedDate={selectedDate}
               userName={userData?.username}
-              meetingDuration={eventType.duration}
+              meetingDuration={eventInformation.duration}
             />
           </CardContent>
         </Card>

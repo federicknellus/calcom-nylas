@@ -1,9 +1,8 @@
 import { cancelMeetingAction } from "@/app/actions";
 import { EmptyState } from "@/app/components/dashboard/EmptyState";
-import { SubmitButton } from "@/app/components/SubmitButton";
 import { auth } from "@/app/lib/auth";
 import { nylas } from "@/app/lib/nylas";
-import { Phone, Trash2 as Trash} from "lucide-react";
+import { Phone} from "lucide-react";
 
 import {
   Card,
@@ -15,18 +14,25 @@ import {
 import { Separator } from "@/components/ui/separator";
 import prisma from "@/app/lib/db";
 import { format, fromUnixTime } from "date-fns";
-import { Icon, Video } from "lucide-react";
 import React from "react";
-import { redirect } from "next/navigation";
-import { config } from "process";
 import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-
-export function uuidsToCompactString(uuid1:any, uuid2:any, salt = "") {
+interface BookingsWithConfig{
+  title: string;
+    duration: number;
+    description: string;
+    configurationId: string;
+    bookingId: string;
+    startTime: number;
+    endTime: number;
+    name: string;
+    contact: string;
+}
+export function uuidsToCompactString(uuid1:string, uuid2:string, salt = "") {
   // Function to convert UUID string to a buffer
-  function uuidToBuffer(uuid:any) {
+  function uuidToBuffer(uuid:string) {
     const hex = uuid.replace(/-/g, ""); // Remove dashes
     return Buffer.from(hex, "hex");
   }
@@ -86,7 +92,7 @@ async function getData(userId: string) {
   });
   
   // Create an array to store all bookings with their configurations
-  let allBookingsWithConfig:any[] = [];
+  let allBookingsWithConfig:BookingsWithConfig[] = [];
   
   for (const config of configurations) {
     const bookings = await prisma.booking.findMany({
@@ -103,7 +109,7 @@ async function getData(userId: string) {
       },
     });
     
-    const listOfBookings = bookings.map(booking => ({
+    const listOfBookings:BookingsWithConfig[] = bookings.map(booking => ({
       ...booking,
       ...config
     }));
@@ -123,14 +129,13 @@ async function getData(userId: string) {
 const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
-  console.log(data.userData);
   const bookings = data.allBookingsWithConfig;
   
   return (
     <>
-      {data.data.length < 1 ? (
+      {data.data.data.length<1 ? (
         <EmptyState
-          title="No meetings found"
+          title="Nessun meeting trovato"
           description="Non hai ancora nessuna prenotazione..."
           buttonText="Crea un nuovo evento"
           href="/dashboard/new"
@@ -146,7 +151,7 @@ const MeetingsPage = async () => {
           <CardContent>
             {bookings.map((item) => (
               <form key={item.bookingId} action={cancelMeetingAction}>
-                <input type="hidden" name="eventId" value={item.id} />
+                <input type="hidden" name="eventId" value={item.bookingId} />
                 <div className="grid grid-cols-3 justify-between items-center">
                   <div>
                 
@@ -159,20 +164,13 @@ const MeetingsPage = async () => {
                     </p>
                     <div className="flex items-center mt-1">
                     <Phone
-                      className={`size-4 mr-2 ${
-                        item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground"
-                      }`}
+                      className={`size-4 mr-2 `}
                     />
-                    <a
-                      className={`text-xs underline-offset-4 ${
-                        item.conferencing?.details?.url ? "text-primary" : "text-muted-foreground cursor-not-allowed pointer-events-none"
-                      }`}
-                      target="_blank"
-                      href={item.conferencing?.details?.url || "#"}
-                    >
+                      <span className="text-muted-foreground text-xs">
                       {/* {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"} */}
                       {item.contact}
-                    </a>
+                      </span>
+
                   </div>
 
                   </div>

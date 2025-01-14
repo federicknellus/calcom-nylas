@@ -5,7 +5,6 @@ import prisma from "./lib/db";
 import { requireUser } from "./lib/hooks";
 import {
   aboutSettingsSchema,
-  eventTypeSchema,
   EventTypeServerSchema,
   onboardingSchema,
 } from "./lib/zodSchemas";
@@ -13,26 +12,46 @@ import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
-import { start } from "repl";
-import { get } from "http";
-import Swal from "sweetalert2";
+import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
+interface Configuration {
+  data: {
+  participants: ConfigParticipant[];
+  availability: Availability;
+  eventBooking: EventBooking;
+  
+  slug?: string;
+  
+  requiresSessionAuth?: boolean;
+  
+  scheduler?: SchedulerSettings;
+  
+  appearance?: Record<string, string>;
+  id?: string;}
+}
 
 
-export async function onboardingAction(prevState: any, formData: FormData) {
+// Update the action function with proper types
+export async function onboardingAction(
+  _prevState: unknown,
+  formData: FormData
+) {
   const session = await requireUser();
+  
+  if (!session.user?.id) {
+    throw new Error('User not authenticated');
+  }
 
   const submission = await parseWithZod(formData, {
     schema: onboardingSchema({
       async isUsernameUnique() {
-        const exisitngSubDirectory = await prisma.user.findUnique({
+        const existingSubDirectory = await prisma.user.findUnique({
           where: {
             username: formData.get("username") as string,
           },
         });
-        return !exisitngSubDirectory;
+        return !existingSubDirectory;
       },
     }),
-
     async: true,
   });
 
@@ -40,9 +59,9 @@ export async function onboardingAction(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  const OnboardingData = await prisma.user.update({
+  const onboardingData = await prisma.user.update({
     where: {
-      id: session.user?.id,
+      id: session.user.id,
     },
     data: {
       username: submission.value.username,
@@ -85,16 +104,17 @@ export async function onboardingAction(prevState: any, formData: FormData) {
               fromTime: "08:00",
               tillTime: "18:00",
             },
-          ],
+          ] ,
         },
       },
     },
   });
 
+  console.log('Onboarding Data:', onboardingData);
+
   return redirect("/onboarding/grant-id");
 }
-
-export async function SettingsAction(prevState: any, formData: FormData) {
+export async function SettingsAction(_prevState:unknown, formData: FormData) {
   const session = await requireUser();
 
   const submission = parseWithZod(formData, {
@@ -105,7 +125,7 @@ export async function SettingsAction(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  const user = await prisma.user.update({
+  const userUpdated = await prisma.user.update({
     where: {
       id: session.user?.id as string,
     },
@@ -119,11 +139,13 @@ export async function SettingsAction(prevState: any, formData: FormData) {
     },
   });
 
+  console.log('User Updated:', userUpdated);
+
   return redirect("/dashboard");
 }
 
 export async function CreateEventTypeAction(
-  prevState: any,
+  _prevState: unknown,
   formData: FormData
 ) {
   const session = await requireUser();
@@ -152,6 +174,7 @@ export async function CreateEventTypeAction(
       id: session.user?.id as string,
     },
     select: {
+      name: true,
       grantEmail: true,
       grantId: true,
     },
@@ -160,30 +183,20 @@ export async function CreateEventTypeAction(
   if (!getUserData) {
     throw new Error("User not found");
   }
-
-  const configuration =  await nylas.scheduler.configurations.create({
+  
+  const newConfiguration = (await nylas.scheduler.configurations.create({
     identifier: getUserData.grantId as string,
     requestBody: {
       eventBooking: {
-    title: submission.value.title,
-    description: submission.value.description,
-    // TODO: mettere true appena abbiamo whatsapp pronto
-    disableEmails: false, 
-    bookingType: 'booking',
-
-      // when: {
-      //   startTime: Math.floor(startDateTime.getTime() / 1000),
-      //   endTime: Math.floor(endDateTime.getTime() / 1000),
-      // },
-      // conferencing: {
-      //   autocreate: {},
-      //   provider: submission.value.videoCallSoftware,
-      // }
-    },
+        title: submission.value.title,
+        description: submission.value.description,
+        disableEmails: true,
+        bookingType: "booking",
+      },
 
       participants: [
         {
-          name: 'Edoardo Gronda',
+          name: getUserData.name!,
           email: getUserData.grantEmail!,
           availability: {
             calendarIds: [getUserData.grantEmail!],
@@ -194,28 +207,19 @@ export async function CreateEventTypeAction(
           isOrganizer: true,
         },
       ],
-      scheduler:{
-        reschedulingUrl: "http://localhost:3000/rescheduling/"+ ":booking_ref",
+      scheduler: {
+        reschedulingUrl: process.env.RESCHEDULING_URL + ":booking_ref",
       },
-      availability:{
+      availability: {
         durationMinutes: submission.value.duration,
-      }
+      },
     },
-  });
+  })) as Configuration;
 
-  // console.log("Configuration",configuration.data.scheduler?.reschedulingUrl);
+  console.log('Created New Configuration:', newConfiguration);
 
-  // console.log("General",configuration);
-  // console.log("Partecipanti",configuration.data.participants)
-  // console.log("Email template",configuration.data.scheduler?.emailTemplate)
 
-  // const configurations = await nylas.scheduler.configurations.list({
-  //   identifier: getUserData.grantId as string,
-  // });
-
-  // console.log("Available Configurations", configurations);
-
-  const data = await prisma.eventType.create({
+  const newEventType = await prisma.eventType.create({
     data: {
       title: submission.value.title,
       duration: submission.value.duration,
@@ -223,15 +227,16 @@ export async function CreateEventTypeAction(
       description: submission.value.description,
       userId: session.user?.id as string,
       videoCallSoftware: submission.value.videoCallSoftware,
-      configurationId: configuration.data.id,
+      configurationId: newConfiguration.data.id as string,
     },
   });
 
-  return redirect("/dashboard");
+  console.log('Created New Event Type:', newEventType);
 
+  return redirect("/dashboard");
 }
 
-export async function EditEventTypeAction(prevState: any, formData: FormData) {
+export async function EditEventTypeAction(_prevState: unknown, formData: FormData) {
   const session = await requireUser();
 
   const originalUrl = formData.get("originalUrl") as string;
@@ -257,7 +262,7 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
     return submission.reply();
   }
 
-  const data = await prisma.eventType.update({
+  const updatedEvent = await prisma.eventType.update({
     where: {
       id: formData.get("id") as string,
       userId: session.user?.id as string,
@@ -271,25 +276,28 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
     },
   });
 
+  console.log('Updated Event:', updatedEvent);
+
   return redirect(`/dashboard`);
 }
-
 
 export async function DeleteEventTypeAction(formData: FormData) {
   const session = await requireUser();
 
-  const data = await prisma.eventType.delete({
+  const deletedEvent = await prisma.eventType.delete({
     where: {
       id: formData.get("id") as string,
       userId: session.user?.id as string,
     },
   });
 
+  console.log('Deleted Event:', deletedEvent);
+
   return redirect("/dashboard");
 }
 
 export async function updateEventTypeStatusAction(
-  prevState: any,
+  _prevState: unknown,
   {
     eventTypeId,
     isChecked,
@@ -301,7 +309,7 @@ export async function updateEventTypeStatusAction(
   try {
     const session = await requireUser();
 
-    const data = await prisma.eventType.update({
+    const updatedEvent = await prisma.eventType.update({
       where: {
         id: eventTypeId,
         userId: session.user?.id as string,
@@ -310,13 +318,14 @@ export async function updateEventTypeStatusAction(
         active: isChecked,
       },
     });
-
+    console.log('Updated Event Status:', updatedEvent);
     revalidatePath(`/dashboard`);
     return {
       status: "success",
       message: "Tipo Evento aggiornato con successo",
     };
   } catch (error) {
+    console.log("Errore nell'aggiornare il tipo evento:", error);
     return {
       status: "error",
       message: "Qualcosa è andato storto",
@@ -326,6 +335,10 @@ export async function updateEventTypeStatusAction(
 
 export async function updateAvailabilityAction(formData: FormData) {
   const session = await requireUser();
+
+  if (!session.user) {
+    throw new Error("Utente non trovato");
+  }
 
   const rawData = Object.fromEntries(formData.entries());
   const availabilityData = Object.keys(rawData)
@@ -355,10 +368,16 @@ export async function updateAvailabilityAction(formData: FormData) {
     );
 
     revalidatePath("/dashboard/availability");
-    return { status: "success", message: "Disponibilità modificate con successo" };
+    return {
+      status: "success",
+      message: "Disponibilità modificate con successo",
+    };
   } catch (error) {
     console.error("Errore nel modificare le disponibilità:", error);
-    return { status: "error", message: "Non siamo riusciti a modificare le disponibilità" };
+    return {
+      status: "error",
+      message: "Non siamo riusciti a modificare le disponibilità",
+    };
   }
 }
 
@@ -389,125 +408,117 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
 
-  // const session = await nylas.scheduler.sessions.create({
-  //   requestBody: {
-  //   configurationId: eventTypeData?.configurationId as string,
-  //   timeToLive: 15
-  //   }
-  // })
 
   const formTime = formData.get("fromTime") as string;
   const meetingLength = Number(formData.get("meetingLength"));
   const eventDate = formData.get("eventDate") as string;
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
+  
   // Calculate the end time by adding the meeting length (in minutes) to the start time
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-  
-  
-  
-  
-  
-  const timeFormatter = new Intl.DateTimeFormat('it-IT', {
-    hour: '2-digit',
-    minute: '2-digit'
+
+  const timeFormatter = new Intl.DateTimeFormat("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
-  
-  
+
   const formattedStartTime = timeFormatter.format(startDateTime); // "08:00"
-  
+
   // Risultato: "8 gennaio 2025 dalle 08:00 alle 08:45"
-  const data_whatsapp = `${startDateTime.getDate()} ${startDateTime.toLocaleString('it-IT', { month: 'long' })} ${startDateTime.getFullYear()}`
-  const ora_whatsapp = `${formattedStartTime}`
-  // console.log('------------??',data_whatsapp, ora_whatsapp, eventTypeData?.title, getUserData?.name);
+  const data_whatsapp = `${startDateTime.getDate()} ${startDateTime.toLocaleString(
+    "it-IT",
+    { month: "long" }
+  )} ${startDateTime.getFullYear()}`;
+  const ora_whatsapp = `${formattedStartTime}`;
+
   const booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
       endTime: Math.floor(endDateTime.getTime() / 1000),
-      guest: 
-        {
-          name: formData.get("name") as string,
-          email: formData.get("email") as string,
-        },
+      guest: {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string, //TODO qui harcodiamo la nostra?
+      },
     },
     queryParams: {
       configurationId: eventTypeData?.configurationId as string,
     },
   });
-  // console.log(booking)
+  
+  console.log('Booking Booked on Nylas:', booking);
 
-
-  const data = await prisma.booking.create({
+  const bookingSupabase = await prisma.booking.create({
     data: {
       name: formData.get("name") as string,
-      contact: formData.get("email") as string,
+      contact: formData.get("phone") as string,
       configurationId: eventTypeData?.configurationId as string,
       bookingId: booking.data.bookingId,
       startTime: Math.floor(startDateTime.getTime() / 1000),
       endTime: Math.floor(endDateTime.getTime() / 1000),
-    }
+    },
   });
-  // console.log('Booking salvato sul DB -------',data);
-  const sendWhatsAppMessage = async () => {
-    const url = 'https://graph.facebook.com/v21.0/501361633063986/messages';
-    
+
+  console.log('Booking Booked on Supabase:', bookingSupabase);
+
+  const sendWhatsAppBookingCreation = async () => {
+    const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+
     const data = {
       messaging_product: "whatsapp",
-      to: '39' + (formData.get("phone") as string),
+      to: "39" + (formData.get("phone") as string),
       type: "template",
       template: {
-      name: "event_details_reminder_2",
-      language: {
-        code: "it"
+        name: "event_details_reminder_2",
+        language: {
+          code: "en_US",
+        },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              {
+                type: "text",
+                text: eventTypeData?.title,
+              },
+              {
+                type: "text",
+                text: getUserData?.name,
+              },
+              {
+                type: "text",
+                text: data_whatsapp,
+              },
+              {
+                type: "text",
+                text: ora_whatsapp,
+              },//TODO aggiungere il campo per il luogo e per il link di rescheduling e cancellation
+            ],
+          },
+        ],
       },
-      components: [
-        {
-        type: "body",
-        parameters: [
-          {
-          type: "text",
-          text: eventTypeData?.title
-          },
-          {
-          type: "text",
-          text: getUserData?.name
-          },
-          {
-          type: "text",
-          text: data_whatsapp
-          },
-          {
-          type: "text",
-          text: ora_whatsapp
-          }
-        ]
-        }
-      ]
-      }
     };
-  
+
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': 'Bearer EAAIX199qwaUBO3G406dx8iurcy6sCWxo5RyZBYkhErdfdsW7F98foZBIrtkhgDZALaCzWP4gncJgQsag959XHRCUTPPDeMTWfmWxoKnc2bAgtld6k65KpPr60YXs58Il4uFQqqxobF414nZCUD0v8ESOe1vximAVz5tqpLXQxFOY8WsDGvU92ZCZBvoRjbPbOicEYuZBaBBZCOPBexqo7z2SJ3G1S8ZCBEhen0IuzQpI0SQ8ZD',
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
-  
+
       const result = await response.json();
-      // console.log('Success:', result);
+      console.log("Messaggio di prenotazione inviato con successo:", result);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Errore nell'inviare il messaggio di prenotazione:", error);
     }
   };
-  
-  sendWhatsAppMessage();
+
+  sendWhatsAppBookingCreation();
+
   return redirect(`/success`);
 }
-
-
-
 
 export async function cancelMeetingAction(formData: FormData) {
   const session = await requireUser();
@@ -532,70 +543,41 @@ export async function cancelMeetingAction(formData: FormData) {
     },
     select: {
       configurationId: true,
-    }
-  })
-  console.log('ID',formData.get("bookingId") as string)
-  console.log('config',booking?.configurationId)
-  const find = await nylas.scheduler.bookings.find({
+    },
+  });
+  console.log("ID", formData.get("bookingId") as string);
+  console.log("config", booking?.configurationId);
+  const bookingFound = await nylas.scheduler.bookings.find({
     bookingId: formData.get("bookingId") as string,
     queryParams: {
       configurationId: booking?.configurationId as string,
     },
-  })
-  console.log('find',find)
+  });
+  
+  console.log("Trovato il booking:", bookingFound);
+  
   //TODO qua abbiamo usato questo excamotage perche al momento non abbiamo un metodo per cancellare un booking via api
-
   const data = await nylas.events.destroy({
-    eventId: find.data.eventId,
+    eventId: bookingFound.data.eventId,
     identifier: userData?.grantId as string,
     queryParams: {
       calendarId: userData?.grantEmail as string,
       notifyParticipants: false,
     },
-  })
-  if (data){
+  });
+  if (data) {
     await prisma.booking.update({
-      where:{
+      where: {
         bookingId: formData.get("bookingId") as string,
       },
-      data:{
+      data: {
         isDeleted: true,
-      }
-    })
+      },
+    });
   }
-  
 
 
-
-
-  //   bookingId: formData.get("bookingId") as string,
-  //   queryParams: {
-  //     configurationId: booking?.configurationId,
-  //   },
-  // })
-  // const deletedBooking = await prisma.booking.update({
-  //   where:{
-  //     bookingId: formData.get("bookingId") as string,
-  //   },
-  //   data:{
-  //     isDeleted: true,
-  //   }
-  // })
-
-
-  // const data = await nylas.events.destroy({
-  //   eventId: formData.get("eventId") as string,
-  //   identifier: userData?.grantId as string,
-  //   queryParams: {
-  //     calendarId: userData?.grantEmail as string,
-  //   },
-  // });
-
-    revalidatePath("/dashboard/meetings");
-  } catch (error) {
-    console.error("Errore durante la cancellazione della riunione:", error);
-    throw new Error("Si è verificato un errore durante la cancellazione della riunione"); // Errore generico
-  }
+  revalidatePath("/dashboard/meetings");
 }
 
 export async function rescheduleMeetingAction(formData: FormData) {
@@ -608,7 +590,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
 
   console.log(startDateTime);
-  console.log('times', Math.floor(startDateTime.getTime() / 1000));
+  console.log("times", Math.floor(startDateTime.getTime() / 1000));
 
   try {
     const rescheduledBooking = await nylas.scheduler.bookings.reschedule({
@@ -638,13 +620,17 @@ export async function rescheduleMeetingAction(formData: FormData) {
     });
 
     if (!rescheduledPrisma) {
-      throw new Error("Errore durante l'aggiornamento della prenotazione nel database"); // Caso in cui il database non si aggiorna
+      throw new Error(
+        "Errore durante l'aggiornamento della prenotazione nel database"
+      ); // Caso in cui il database non si aggiorna
     }
 
-    console.log('rescheduled booking', rescheduledBooking);
-    console.log('rescheduled booking', rescheduledPrisma);
+    console.log("rescheduled booking", rescheduledBooking);
+    console.log("rescheduled booking", rescheduledPrisma);
   } catch (error) {
     console.error("Errore durante la riprogrammazione della riunione:", error);
-    throw new Error("Si è verificato un errore durante la riprogrammazione della riunione"); // Errore generico
+    throw new Error(
+      "Si è verificato un errore durante la riprogrammazione della riunione"
+    ); // Errore generico
   }
 }

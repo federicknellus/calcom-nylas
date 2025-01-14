@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import prisma from "@/lib/db";
-import { format } from "date-fns";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -54,25 +53,42 @@ async function getData(username: string, eventName: string) {
   
   return eventType;
 }
+// type BookingPageProps = {
+//   params: {
+//     username: string;
+//     eventName: string;
+//   };
+//   searchParams?: {
+//     date?: string;
+//     time?: string;
+//   };
+// };
+ 
+type Props = {
+  params: Promise<{ username: string, eventName: string }>
+  searchParams: Promise<{ [key: string]: string  | undefined }>
+}
 
-const BookingPage = async ({
-  params,
-  searchParams,
-}: {
-  params: { username: string; eventName: string };
-  searchParams: { date?: string; time?: string };
-}) => {
-  
-  // Await the `params` before using its properties
-  const resolvedParams = await Promise.resolve(params);
-  const resolvedSearchParams = await Promise.resolve(searchParams);
-// console.log(resolvedParams, resolvedSearchParams)
-  const { username, eventName } = resolvedParams;
+// export async function generateMetadata(
+//   { params, searchParams }: Props,
+//   parent: ResolvingMetadata
+// ): Promise<Metadata> {
+//   // read route params
+ 
+//   return {
+    
+//   }
+// }
 
-  const selectedDate = resolvedSearchParams.date
-    ? new Date(resolvedSearchParams.date)
-    : new Date();
-
+const BookingPage = async ({ params, searchParams }: Props) => {
+  const { username, eventName } = await params;
+  const currSearchParams  = await searchParams;
+  // const selectedDate = searchParams?.date
+  //   ? new Date(searchParams.date)
+  //   : new Date();
+  const selectedDate = currSearchParams?.date
+  ? new Date(currSearchParams?.date)
+  : new Date();
   const eventType = await getData(username, eventName);
 
   if (!eventType) {
@@ -85,9 +101,8 @@ const BookingPage = async ({
     month: "long",
   }).format(selectedDate);
 
-  const showForm = !!resolvedSearchParams.date && !!resolvedSearchParams.time;
-
-
+  // We can safely check searchParams without resolving promises
+  const showForm = !!currSearchParams?.date && !!currSearchParams?.time;
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
       {showForm ? (
@@ -154,8 +169,8 @@ const BookingPage = async ({
             >
               <input type="hidden" name="eventTypeId" value={eventType.id} />
               <input type="hidden" name="username" value={username} />
-              <input type="hidden" name="fromTime" value={resolvedSearchParams.time} />
-              <input type="hidden" name="eventDate" value={resolvedSearchParams.date} />
+              <input type="hidden" name="fromTime" value={currSearchParams.time} />
+              <input type="hidden" name="eventDate" value={currSearchParams.date} />
               <input
                 type="hidden"
                 name="meetingLength"
