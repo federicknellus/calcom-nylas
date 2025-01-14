@@ -27,6 +27,10 @@ const BookingPage = async ({
         id: true,
         image: true,
         name: true,
+        citta: true,
+        indirizzo: true,
+        nome_studio: true,
+        telefono: true,
       },
     });
     if (!userData) {
@@ -59,20 +63,22 @@ const BookingPage = async ({
         <div className="max-w-4xl mx-auto space-y-2">
           {/* Professional Details */}
           <Card className="bg-transparent border-transparent shadow-none">
-            <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={userData?.image || ''} alt={userData?.name || 'Professional'} />
-                  <AvatarFallback>{userData?.name?.[0] || 'P'}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-2xl font-bold text-primary">
-                    {userData?.name}
-                  </CardTitle>
-                  <p className="text-muted-foreground">I miei servizi</p>
-                </div>
-              </div>
-            </CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={userData?.image || ''} alt={userData?.name || 'Professional'} />
+                <AvatarFallback>{userData?.name?.[0] || 'P'}</AvatarFallback>
+              </Avatar>
+              <CardTitle className="text-2xl font-bold text-primary">
+                {userData?.name}
+              </CardTitle>
+            </div>
+            <div className="text-end text-muted-foreground">
+              <CardDescription>{userData?.nome_studio}</CardDescription>
+              <CardDescription>{userData?.citta}, {userData?.indirizzo}</CardDescription>
+              <CardDescription>{userData?.telefono}</CardDescription>
+            </div>
+          </CardHeader>
           </Card>
           <Card className="bg-transparent border-transparent shadow-none">
             <Separator />

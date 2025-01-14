@@ -15,6 +15,8 @@ import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { start } from "repl";
 import { get } from "http";
+import Swal from "sweetalert2";
+
 
 export async function onboardingAction(prevState: any, formData: FormData) {
   const session = await requireUser();
@@ -110,6 +112,10 @@ export async function SettingsAction(prevState: any, formData: FormData) {
     data: {
       name: submission.value.fullName,
       image: submission.value.profileImage,
+      citta: submission.value.citta,
+      indirizzo: submission.value.indirizzo,
+      nome_studio: submission.value.nome_studio,
+      telefono: submission.value.telefono,
     },
   });
 
@@ -503,7 +509,6 @@ export async function createMeetingAction(formData: FormData) {
 
 
 
-
 export async function cancelMeetingAction(formData: FormData) {
   const session = await requireUser();
 
@@ -518,13 +523,14 @@ export async function cancelMeetingAction(formData: FormData) {
   });
 
   if (!userData) {
-    throw new Error("User not found");
+    throw new Error("Utente non trovato"); // Caso in cui l'utente non è trovato nel database
   }
+
   const booking = await prisma.booking.findUnique({
     where: {
       bookingId: formData.get("bookingId") as string,
     },
-    select:{
+    select: {
       configurationId: true,
     }
   })
@@ -585,13 +591,14 @@ export async function cancelMeetingAction(formData: FormData) {
   //   },
   // });
 
-  revalidatePath("/dashboard/meetings");
+    revalidatePath("/dashboard/meetings");
+  } catch (error) {
+    console.error("Errore durante la cancellazione della riunione:", error);
+    throw new Error("Si è verificato un errore durante la cancellazione della riunione"); // Errore generico
+  }
 }
 
-
-export async function rescheduleMeetingAction(
-  formData:FormData) {
-
+export async function rescheduleMeetingAction(formData: FormData) {
   const booking_id = formData.get("bookingId") as string;
   const config_id = formData.get("configId") as string;
   const formTime = formData.get("fromTime") as string;
@@ -599,8 +606,11 @@ export async function rescheduleMeetingAction(
   const eventDate = formData.get("eventDate") as string;
   const startDateTime = new Date(`${eventDate}T${formTime}:00`);
   const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
-  console.log(startDateTime) 
-  console.log('times', Math.floor(startDateTime.getTime() / 1000))
+
+  console.log(startDateTime);
+  console.log('times', Math.floor(startDateTime.getTime() / 1000));
+
+  try {
     const rescheduledBooking = await nylas.scheduler.bookings.reschedule({
       queryParams: {
         configurationId: config_id,
@@ -611,6 +621,11 @@ export async function rescheduleMeetingAction(
         endTime: Math.floor(endDateTime.getTime() / 1000),
       },
     });
+
+    if (!rescheduledBooking) {
+      throw new Error("Errore durante la riprogrammazione della prenotazione"); // Caso in cui la riprogrammazione fallisce
+    }
+
     const rescheduledPrisma = await prisma.booking.update({
       where: {
         bookingId: booking_id,
@@ -621,31 +636,15 @@ export async function rescheduleMeetingAction(
         updatedAt: new Date(),
       },
     });
-    console.log('rescheduled booking',rescheduledBooking)
-    console.log('rescheduled booking',rescheduledPrisma)
 
+    if (!rescheduledPrisma) {
+      throw new Error("Errore durante l'aggiornamento della prenotazione nel database"); // Caso in cui il database non si aggiorna
+    }
+
+    console.log('rescheduled booking', rescheduledBooking);
+    console.log('rescheduled booking', rescheduledPrisma);
+  } catch (error) {
+    console.error("Errore durante la riprogrammazione della riunione:", error);
+    throw new Error("Si è verificato un errore durante la riprogrammazione della riunione"); // Errore generico
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

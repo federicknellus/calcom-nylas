@@ -14,6 +14,9 @@ const nextConfig = {
         port: "",
         protocol: "https",
       },
+      {hostname: 'turmbmzdn4.ufs.sh',
+      port: '',
+      protocol: 'https'},
     ],
   },
 };

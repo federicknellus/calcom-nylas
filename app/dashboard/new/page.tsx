@@ -157,7 +157,7 @@ const CreateNewEvent = () => {
                     activePlatform === "Google Meet" ? "secondary" : "outline"
                   }
                 >
-                  Google Meet
+                 Google Meet 
                 </Button>
                 <Button
                   variant={

@@ -13,38 +13,38 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { useActionState } from "react";
 import { SubmitButton } from "../SubmitButton";
 import { UploadDropzone } from "@/app/lib/uploadthing";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface iAppProps {
   fullName: string;
   email: string;
-
   profileImage: string;
+  citta?: string;
+  indirizzo?: string;
+  nome_studio?: string;
+  telefono?: string;
 }
 
-export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
+export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, nome_studio, telefono }: iAppProps) {
   const [lastResult, action] = useActionState(SettingsAction, undefined);
   const [currentProfileImage, setCurrentProfileImage] = useState(profileImage);
+  const [phoneNumber, setPhoneNumber] = useState(telefono || '');
 
   const [form, fields] = useForm({
-    // Sync the result of last submission
     lastResult,
-
-    // Reuse the validation logic on the client
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: aboutSettingsSchema });
     },
-
-    // Validate the form on blur event triggered
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
   });
@@ -120,6 +120,54 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
             )}
             <p className="text-red-500 text-sm">{fields.profileImage.errors}</p>
           </div>
+
+          <div className="flex flex-col gap-y-2">
+            <Label>Città (opzionale)</Label>
+            <Input
+              name={fields.citta.name}
+              key={fields.citta.key}
+              placeholder="Roma"
+              defaultValue={citta}
+            />
+            <p className="text-red-500 text-sm">{fields.citta.errors}</p>
+          </div>
+
+          <div className="flex flex-col gap-y-2">
+            <Label>Indirizzo (opzionale)</Label>
+            <Input
+              name={fields.indirizzo.name}
+              key={fields.indirizzo.key}
+              placeholder="Via Roma, 1"
+              defaultValue={indirizzo}
+            />
+            <p className="text-red-500 text-sm">{fields.indirizzo.errors}</p>
+          </div>
+
+          <div className="flex flex-col gap-y-2">
+            <Label>Nome Studio (opzionale)</Label>
+            <Input
+              name={fields.nome_studio.name}
+              key={fields.nome_studio.key}
+              placeholder="Studio Rossi"
+              defaultValue={nome_studio}
+            />
+            <p className="text-red-500 text-sm">{fields.nome_studio.errors}</p>
+          </div>
+
+          <div className="flex flex-col gap-y-2">
+            <Label>Telefono</Label>
+            <PhoneInput
+              country={'it'}
+              value={phoneNumber}
+              onChange={(phone) => setPhoneNumber(phone)}
+              inputProps={{
+                name: fields.telefono.name,
+                required: false,
+              }}
+              
+            />
+            <p className="text-red-500 text-sm">{fields.telefono.errors}</p>
+          </div>
         </CardContent>
         <CardFooter>
           <SubmitButton text="Salva" />
@@ -128,3 +176,4 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
     </Card>
   );
 }
+

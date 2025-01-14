@@ -2,7 +2,7 @@ import { rescheduleMeetingAction } from "@/app/actions";
 import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { TimeSlots } from "@/app/components/TimeSlots";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -66,6 +66,10 @@ async function getAvailability(username: string, eventName: string) {
         select: {
           image: true,
           name: true,
+          citta: true,
+          telefono: true,
+          indirizzo: true,
+          nome_studio: true,
           Availability: {
             select: {
               day: true,
@@ -213,6 +217,7 @@ const Reschedule = async ({
         <Card className="max-w-[600px]">
           <CardContent className="p-5 grid md:grid-cols-[1fr,auto,1fr] gap-4">
             <div>
+              <div className="flex items-end space-x-2">
               <Image
                 src={eventType.user.image as string}
                 alt={`${eventType.user.name}'s profile picture`}
@@ -220,9 +225,12 @@ const Reschedule = async ({
                 width={30}
                 height={30}
               />
-              <p className="text-sm font-medium text-muted-foreground mt-1">
+              </div>
+              <CardTitle 
+                className=" text-primary mt-2"
+               >
                 {eventType.user.name}
-              </p>
+              </CardTitle>
               <h1 className="text-xl font-semibold mt-2">Riprogrammazione</h1>
               <p className="text-sm font-medium text-muted-foreground">
               {eventType.title}
@@ -247,6 +255,15 @@ const Reschedule = async ({
                     {eventType.videoCallSoftware}
                   </span>
                 </p>
+                <div className="flex-grow"></div>
+                <div>
+                <p className="text-xs font-medium text-muted-foreground mt-1">
+                {eventType.user.indirizzo}, {eventType.user.citta}
+                </p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">
+                {eventType.user.telefono}
+                </p>
+              </div>
               </div>
             </div>
             <Separator
@@ -289,6 +306,15 @@ const Reschedule = async ({
                 />
               </div>
 
+              <div className="flex flex-col gap-y-1">
+                <Label>Il tuo numero di telefono</Label>
+                <Input
+                  name="phone"
+                  placeholder={oldBooking?.contact}
+                  disabled
+                />
+              </div>
+
               <div className="flex-grow"></div>
               <SubmitButton text="Ripianifica" className="self-end " />
             </form>
@@ -299,16 +325,20 @@ const Reschedule = async ({
         <Card className="w-full max-w-[1000px] mx-auto">
           <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr,auto,1fr] md:gap-4">
             <div>
+              <div className="flex items-end space-x-2">
               <Image
-                src={userData?.image as string}
-                alt={`${userData?.name}'s profile picture`}
+                src={eventType.user.image as string}
+                alt={`${eventType.user.name}'s profile picture`}
                 className="size-9 rounded-full"
                 width={30}
                 height={30}
               />
-              <p className="text-sm font-medium text-muted-foreground mt-1">
-                {userData?.name}
-              </p>
+              </div>
+              <CardTitle 
+                className=" text-primary mt-2"
+               >
+                {eventType.user.name}
+              </CardTitle>
               <h1 className="text-xl font-semibold mt-2"> Riprogrammazione</h1>
               <p className="text-sm font-medium text-muted-foreground">
               {eventData?.title}
@@ -347,6 +377,15 @@ const Reschedule = async ({
                     {eventType.videoCallSoftware}
                   </span>
                 </p>
+                <div className="flex-grow"></div>
+                <div>
+                <p className="text-xs font-medium text-muted-foreground mt-1">
+                {eventType.user.indirizzo}, {eventType.user.citta}
+                </p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">
+                {eventType.user.telefono}
+                </p>
+              </div>
               </div>
             </div>
 
