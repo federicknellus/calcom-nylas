@@ -1,3 +1,5 @@
+
+
 import { rescheduleMeetingAction } from "@/app/actions";
 import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
 import { SubmitButton } from "@/app/components/SubmitButton";
@@ -14,6 +16,7 @@ import React from "react";
 import { nylas } from "@/app/lib/nylas";
 import { CalendarCheck2 } from "lucide-react";
 import { compactStringToUUIDs } from "@/lib/utils";
+import { ActionChoiceCard } from "./cosaVuoiFare";
 
 async function getEventInformation(username: string, eventName: string) {
   const eventType = await prisma.eventType.findFirst({
@@ -62,7 +65,7 @@ const Reschedule = async ({
   searchParams,
 }: {
   params: { bookingRef: string };
-  searchParams: { date?: string; time?: string };
+  searchParams: { date?: string; time?: string, riprogrammare?: string };
 }) => {
   // Prendiamo il bookingRef dai parametri
   const { bookingRef } = await Promise.resolve(params);
@@ -200,10 +203,28 @@ if (!userData) {
   const startTime = new Intl.DateTimeFormat("it-IT", timeOptions).format(start);
   const endTime = new Intl.DateTimeFormat("it-IT", timeOptions).format(end);
   const showForm = !!resolvedSearchParams.date && !!resolvedSearchParams.time;
+  const riprogrammare = resolvedSearchParams.riprogrammare;
+  console.log("Riprogrammare:", riprogrammare);
+  
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
-      {showForm ? (
+      {!riprogrammare ? (
+      <ActionChoiceCard
+        configId={bookingData[0]}
+        bookingId={bookingData[1]}
+        title={eventData?.title}
+        userName={eventInformation.user.name}
+        date={date}
+        startTime={startTime}
+        endTime={endTime}
+        duration={eventData?.duration}
+        image={eventInformation.user.image as string}
+        indirizzo={eventInformation.user.indirizzo}
+        citta={eventInformation.user.citta}
+        telefono={eventInformation.user.telefono}
+      />
+    ) : showForm ? (
         <Card className="max-w-[600px]">
           <CardContent className="p-5 grid md:grid-cols-[1fr,auto,1fr] gap-4">
             <div>

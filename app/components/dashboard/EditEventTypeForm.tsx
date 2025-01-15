@@ -100,7 +100,7 @@ export function EditEventTypeForm({
               <Label>Link</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  ZenCal.it/
+                  Lunaio/
                 </span>
                 <Input
                   type="text"

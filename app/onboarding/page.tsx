@@ -38,7 +38,7 @@ const OnboardingPage = () => {
     <div className="h-screen w-screen flex items-center justify-center">
       <Card className="min-w-[400px]">
         <CardHeader>
-          <CardTitle className="inline-flex">Benvenuto su Zen<p className="text-primary">Cal</p></CardTitle>
+          <CardTitle className="inline-flex">Benvenuto su Lun<p className="text-primary">AI</p>o.</CardTitle>
           <CardDescription>
             Facci sapere qualcosa di te per iniziare
           </CardDescription>
@@ -61,7 +61,7 @@ const OnboardingPage = () => {
 
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  ZenCal.it/
+                  LunAIo/
                 </span>
                 <Input
                   type="text"

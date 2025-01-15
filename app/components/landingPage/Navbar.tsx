@@ -12,7 +12,7 @@ export function Navbar() {
           <Image src={Logo} className="w-16" alt="Logo" />
 
           <h4 className="text-3xl font-semibold">
-            Zen<span className="text-primary">Cal</span>
+            Lun<span className="text-primary">AI</span>o
           </h4>
         </Link>
         <div className="md:hidden">

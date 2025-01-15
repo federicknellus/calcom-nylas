@@ -24,7 +24,7 @@ export function AuthModal({action, titolo}:{action: string, titolo: string}) {
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
           <Image src={Logo} className="w-16" alt="Logo" />
           <DialogTitle className="text-3xl font-semibold">
-            Zen<span className="text-primary">Cal</span>
+            Lun<span className="text-primary">AI</span>o.
           </DialogTitle>
         </DialogHeader>
           <div className="flex flex-col gap-3 mt-5">
