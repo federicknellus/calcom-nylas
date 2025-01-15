@@ -633,4 +633,6 @@ export async function rescheduleMeetingAction(formData: FormData) {
       "Si è verificato un errore durante la riprogrammazione della riunione"
     ); // Errore generico
   }
+
+  return redirect(`/success`);
 }

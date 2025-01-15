@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/app/components/SubmitButton";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -46,7 +46,7 @@ export const ActionChoiceCard = ({
   };
 
   return (
-    <Card className="w-full max-w-[1000px] mx-auto">
+    <Card className="w-full max-w-[1000px] mx-auto m-4">
       <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr] gap-4">
         <div>
           <div className="flex items-end space-x-2">
@@ -101,29 +101,17 @@ export const ActionChoiceCard = ({
           className="hidden md:block h-full w-[1px]"
         />
 
-        <div className="flex flex-col justify-center gap-4 p-4">
-          <h2 className="text-lg font-semibold text-center mb-4">
+        <div className="flex flex-col justify-center gap-2 p-4 mt-8 md:mt-0">
+          <h2 className="text-lg font-semibold text-left mb-4">
             Cosa desideri fare?
           </h2>
           <form action={cancelMeetingAction}>
             <input type="hidden" name="configId" value={configId} />
             <input type="hidden" name="bookingId" value={bookingId} />
-            <div className="space-y-4">
-              <Button 
-                type="submit"
-                variant="destructive"
-                className="w-full"
-              >
-                Cancella
-              </Button>
-              <Button 
-                type="button"
-                variant="default"
-                className="w-full"
-                onClick={handleReschedule}
-              >
-                Riprogramma
-              </Button>
+            <div className="flex space-y-4 space-x-4 justify-between">
+            <SubmitButton text="Riprogramma" className="self-end w-full" />
+            <Separator orientation="vertical" className="h-8" />
+            <SubmitButton text="Cancella" className="self-end bg-red-500 w-full hover:bg-red-700" />
             </div>
           </form>
         </div>

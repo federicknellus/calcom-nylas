@@ -209,7 +209,7 @@ if (!userData) {
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
-      {!riprogrammare ? (
+      {!riprogrammare && !showForm ? (
       <ActionChoiceCard
         configId={bookingData[0]}
         bookingId={bookingData[1]}
