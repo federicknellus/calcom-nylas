@@ -224,6 +224,7 @@ if (!userData) {
         indirizzo={eventInformation.user.indirizzo}
         citta={eventInformation.user.citta}
         telefono={eventInformation.user.telefono}
+        contact={oldBooking.contact}
       />
     ) : showForm ? (
         <Card className="max-w-[600px]">

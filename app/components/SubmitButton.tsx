@@ -22,9 +22,10 @@ interface iAppProps {
     | undefined;
   redirectUrl?: string;
   className?: string;
+  handleClickFunction?: () => void;
 }
 
-export function SubmitButton({ text, icon, variant, redirectUrl, className }: iAppProps) {
+export function SubmitButton({ text, icon, variant, redirectUrl, className, handleClickFunction}: iAppProps) {
   const { pending } = useFormStatus();
 
   const router = useRouter();
@@ -47,7 +48,7 @@ export function SubmitButton({ text, icon, variant, redirectUrl, className }: iA
           variant={variant}
           type="submit"
           className={cn("w-fit", className)}
-          onClick={ handleClick}
+          onClick={handleClickFunction||handleClick}
         >
           {icon}{text}
         </Button>

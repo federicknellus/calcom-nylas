@@ -33,6 +33,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   Availability  Availability[]
   EventType     EventType[]
+  isDeleted     Boolean        @default(false)
 }
 
 model Account {
@@ -109,6 +110,12 @@ model EventType {
   videoCallSoftware String    @default("Google Meet")
   configurationId   String    @unique
   meetings          Booking[]
+  isDeleted         Boolean   @default(false)
+  buffer Int @default(0)
+  anticipo Int @default(0)
+  cancellazione Int @default(0)
+  luogo String @default("Nessuna informazione")
+
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
