@@ -56,16 +56,17 @@ async function getEventInformation(username: string, eventName: string) {
 
   return eventType;
 }
+type Props = {
+  params: Promise<{ bookingRef: string,}>
+  searchParams: Promise<{ [key: string]: string  | undefined }>
+}
 
 const Reschedule = async ({
   params,
   searchParams,
-}: {
-  params: { bookingRef: string };
-  searchParams: { date?: string; time?: string };
-}) => {
+}:Props) => {
   // Prendiamo il bookingRef dai parametri
-  const { bookingRef } = await Promise.resolve(params);
+  const { bookingRef } = await params;
 
   console.log(
     "Tentativo di modificare la prenotazione con il bookingRef:",
@@ -162,7 +163,7 @@ if (!userData) {
     return notFound();
   }
 
-  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const resolvedSearchParams = await searchParams;
   const selectedDate = resolvedSearchParams.date
     ? new Date(resolvedSearchParams.date)
     : new Date();

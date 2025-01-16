@@ -7,18 +7,16 @@ import prisma from "@/lib/db";
 import React from "react";
 import { translateDayToItalian } from "@/app/lib/translateDayToItalian"
 import { notFound } from "next/navigation"
-
+type Props = {
+  params: Promise<{ username: string}>
+}
 const BookingPage = async ({
     params,
     
-  }: {
-    params: { username: string; eventName: string };
+  }: Props) => {
     
-  }) => {
     
-    // Await the `params` before using its properties
-    const resolvedParams = await Promise.resolve(params);
-    const { username } = resolvedParams;
+    const { username } = await params;
     const userData = await prisma.user.findFirst({
       where: {
         username: username,
