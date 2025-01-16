@@ -112,6 +112,9 @@ model EventType {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
+  buffer Int @default(0)
+  anticipo Int @default(0)
+  cancellazione Int @default(0)
 
   createdAt DateTime @default(now())
 }
