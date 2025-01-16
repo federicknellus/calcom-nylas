@@ -5,7 +5,7 @@ export function CTA() {
     <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 my-20">
       <div className="relative isolate overflow-hidden  px-6 py-20 text-center sm:rounded-3xl sm:border  sm:px-16 sm:shadow-sm">
         <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight  sm:text-4xl">
-          Inizia a usare ZenCal oggi!
+          Inizia a usare LunAIo oggi!
         </h2>
         <h3 className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
           Basta perdere delle ore a gestire la tua agenda. 

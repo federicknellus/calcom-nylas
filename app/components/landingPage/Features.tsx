@@ -41,7 +41,7 @@ export function Features() {
           Prenotare in un click
         </h1>
         <p className="mt-6 text-base leading-snug text-muted-foreground">
-          Con ZenCal puoi gestire la tua agenda senza starci dietro. 
+          Con LunAIo puoi gestire la tua agenda senza starci dietro. 
           Condividi il tuo link con i tuoi clienti e lascia che siano loro a prenotare il tuo tempo.
           Tu dovrai solo controlare la tua agenda per vedere chi è il prossimo nella lista.
         </p>

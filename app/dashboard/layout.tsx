@@ -64,7 +64,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
               <Link href="/" className="flex items-center gap-2 font-semibold">
                 <Image src={Logo} alt="Logo" className="w-10" />
                 <p className="text-xl font-bold">
-                  Zen<span className="text-primary">Cal</span>
+                  Lun<span className="text-primary">AI</span>o.
                 </p>
               </Link>
             </div>
@@ -95,7 +95,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
                   <Link href="/" className="flex items-center gap-2 font-semibold">
                     <Image src={Logo} alt="Logo" className="size-6" />
                     <p className="text-xl font-bold">
-                      Zen<span className="text-primary">Cal</span>
+                      Lun<span className="text-primary">AI</span>o.
                     </p>
                   </Link>
                 </SheetTitle>
