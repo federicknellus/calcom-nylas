@@ -31,7 +31,7 @@ interface BookingsWithConfig{
     name: string;
     contact: string;
 }
-export function uuidsToCompactString(uuid1:string, uuid2:string, salt = "") {
+function uuidsToCompactString(uuid1:string, uuid2:string, salt = "") {
   // Function to convert UUID string to a buffer
   function uuidToBuffer(uuid:string) {
     const hex = uuid.replace(/-/g, ""); // Remove dashes
@@ -126,7 +126,7 @@ async function getData(userId: string) {
 }
 
 
-const MeetingsPage = async () => {
+export default async function  MeetingsPage ()  {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
   const bookings = data.allBookingsWithConfig;
@@ -193,5 +193,4 @@ const MeetingsPage = async () => {
   );
 };
 
-export default MeetingsPage;
 

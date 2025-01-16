@@ -23,11 +23,12 @@ async function getData(eventTypeId: string) {
   }
   return data;
 }
+type Props = {
+  params: Promise<{ eventTypeId: string}>
+}
 const EditEventTypePage = async ({
   params,
-}: {
-  params: { eventTypeId: string };
-}) => {
+}: Props) => {
   const { eventTypeId } = await Promise.resolve(params);
   const data = await getData(eventTypeId);
 

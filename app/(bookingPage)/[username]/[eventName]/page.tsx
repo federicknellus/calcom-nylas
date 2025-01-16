@@ -2,6 +2,7 @@ import { createMeetingAction } from "@/app/actions";
 import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { TimeSlots } from "@/app/components/TimeSlots";
+import NotFound from "@/app/not-found";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,8 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 async function getData(username: string, eventName: string) {
+
+  try {
   const eventType = await prisma.eventType.findFirst({
     where: {
       url: eventName,
@@ -27,7 +30,6 @@ async function getData(username: string, eventName: string) {
       title: true,
       duration: true,
       videoCallSoftware: true,
-
       user: {
         select: {
           image: true,
@@ -46,62 +48,40 @@ async function getData(username: string, eventName: string) {
       },
     },
   });
-
-  if (!eventType) {
-    return notFound();
-  }
-  
   return eventType;
-}
-// type BookingPageProps = {
-//   params: {
-//     username: string;
-//     eventName: string;
-//   };
-//   searchParams?: {
-//     date?: string;
-//     time?: string;
-//   };
-// };
+  
+  } catch (e) {
+    console.error(e)
+    return notFound()
+  }
  
-type Props = {
-  params: Promise<{ username: string, eventName: string }>
-  searchParams: Promise<{ [key: string]: string  | undefined }>
+
+  
 }
 
-// export async function generateMetadata(
-//   { params, searchParams }: Props,
-//   parent: ResolvingMetadata
-// ): Promise<Metadata> {
-//   // read route params
- 
-//   return {
-    
-//   }
-// }
+type Props = {
+  params: Promise<{ username: string; eventName: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+};
 
 const BookingPage = async ({ params, searchParams }: Props) => {
   const { username, eventName } = await params;
-  const currSearchParams  = await searchParams;
-  // const selectedDate = searchParams?.date
-  //   ? new Date(searchParams.date)
-  //   : new Date();
+  const currSearchParams = await searchParams;
   const selectedDate = currSearchParams?.date
-  ? new Date(currSearchParams?.date)
-  : new Date();
+    ? new Date(currSearchParams?.date)
+    : new Date();
   const eventType = await getData(username, eventName);
 
   if (!eventType) {
-    return notFound();
+    return notFound()
   }
-
+  
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
   }).format(selectedDate);
 
-  // We can safely check searchParams without resolving promises
   const showForm = !!currSearchParams?.date && !!currSearchParams?.time;
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
@@ -110,17 +90,15 @@ const BookingPage = async ({ params, searchParams }: Props) => {
           <CardContent className="p-5 grid md:grid-cols-[1fr,auto,1fr] gap-4">
             <div>
               <div className="flex items-end space-x-2">
-              <Image
-                src={eventType.user.image as string}
-                alt={`${eventType.user.name}'s profile picture`}
-                className="size-9 rounded-full"
-                width={30}
-                height={30}
-              />
+                <Image
+                  src={eventType.user.image as string}
+                  alt={`${eventType.user.name}'s profile picture`}
+                  className="size-9 rounded-full"
+                  width={30}
+                  height={30}
+                />
               </div>
-              <CardTitle 
-                className=" text-primary mt-2"
-               >
+              <CardTitle className=" text-primary mt-2">
                 {eventType.user.name}
               </CardTitle>
               <h1 className="text-xl font-semibold mt-2">{eventType.title}</h1>
@@ -149,13 +127,15 @@ const BookingPage = async ({ params, searchParams }: Props) => {
                 </p>
                 <div className="flex-grow"></div>
                 <div>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.indirizzo}, {eventType.user.citta}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.telefono}
-                </p>
-              </div>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventType.user.indirizzo
+                      ? `${eventType.user.indirizzo}, ${eventType.user.citta}`
+                      : eventType.user.citta}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventType.user.telefono}
+                  </p>
+                </div>
               </div>
             </div>
             <Separator
@@ -163,14 +143,22 @@ const BookingPage = async ({ params, searchParams }: Props) => {
               className="hidden md:block h-full w-[1px]"
             />
 
-          <form
+            <form
               className="flex flex-col gap-y-4"
               action={createMeetingAction}
             >
               <input type="hidden" name="eventTypeId" value={eventType.id} />
               <input type="hidden" name="username" value={username} />
-              <input type="hidden" name="fromTime" value={currSearchParams.time} />
-              <input type="hidden" name="eventDate" value={currSearchParams.date} />
+              <input
+                type="hidden"
+                name="fromTime"
+                value={currSearchParams.time}
+              />
+              <input
+                type="hidden"
+                name="eventDate"
+                value={currSearchParams.date}
+              />
               <input
                 type="hidden"
                 name="meetingLength"
@@ -199,18 +187,15 @@ const BookingPage = async ({ params, searchParams }: Props) => {
           <CardContent className="p-5 md:grid md:grid-cols-[1fr,auto,1fr,auto,1fr] md:gap-4">
             <div>
               <div className="flex items-end space-x-2">
-              <Image
-                src={eventType.user.image as string}
-                alt={`${eventType.user.name}'s profile picture`}
-                className="size-9 rounded-full"
-                width={30}
-                height={30}
-              />
-               
+                <Image
+                  src={eventType.user.image as string}
+                  alt={`${eventType.user.name}'s profile picture`}
+                  className="size-9 rounded-full"
+                  width={30}
+                  height={30}
+                />
               </div>
-              <CardTitle 
-                className=" text-primary mt-2"
-               >
+              <CardTitle className=" text-primary mt-2">
                 {eventType.user.name}
               </CardTitle>
               <h1 className="text-xl font-semibold mt-4">{eventType.title}</h1>
@@ -223,7 +208,6 @@ const BookingPage = async ({ params, searchParams }: Props) => {
                   <span className="text-sm font-medium text-muted-foreground">
                     {formattedDate}
                   </span>
-                  
                 </p>
                 <p className="flex items-center">
                   <Clock className="size-4 mr-2 text-primary" />
@@ -239,13 +223,15 @@ const BookingPage = async ({ params, searchParams }: Props) => {
                 </p>
                 <div className="flex flex-grow bg-black"></div>
                 <div>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.indirizzo}, {eventType.user.citta}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                {eventType.user.telefono}
-              </p>
-              </div>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventType.user.indirizzo
+                      ? `${eventType.user.indirizzo}, ${eventType.user.citta}`
+                      : eventType.user.citta}
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground mt-1">
+                    {eventType.user.telefono}
+                  </p>
+                </div>
               </div>
             </div>
 

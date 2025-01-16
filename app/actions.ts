@@ -13,19 +13,15 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
-
+import { exec } from "child_process";
 interface Configuration {
   data: {
   participants: ConfigParticipant[];
   availability: Availability;
   eventBooking: EventBooking;
-  
   slug?: string;
-  
   requiresSessionAuth?: boolean;
-  
   scheduler?: SchedulerSettings;
-  
   appearance?: Record<string, string>;
   id?: string;}
 }
@@ -357,7 +353,7 @@ export async function updateEventTypeStatusAction(
   }
 }
 
-export async function updateAvailabilityAction(formData: FormData) {
+export async function updateAvailabilityAction(formData: FormData):Promise<void> {
   const session = await requireUser();
 
   if (!session.user) {
@@ -392,16 +388,16 @@ export async function updateAvailabilityAction(formData: FormData) {
     );
 
     revalidatePath("/dashboard/availability");
-    return {
-      status: "success",
-      message: "Disponibilità modificate con successo",
-    };
+    // return {
+    //   status: "success",
+    //   message: "Disponibilità modificate con successo",
+    // };
   } catch (error) {
     console.error("Errore nel modificare le disponibilità:", error);
-    return {
-      status: "error",
-      message: "Non siamo riusciti a modificare le disponibilità",
-    };
+    // return {
+    //   status: "error",
+    //   message: "Non siamo riusciti a modificare le disponibilità",
+    // };
   }
 }
 
@@ -454,8 +450,9 @@ export async function createMeetingAction(formData: FormData) {
     { month: "long" }
   )} ${startDateTime.getFullYear()}`;
   const ora_whatsapp = `${formattedStartTime}`;
-
-  const booking = await nylas.scheduler.bookings.create({
+  let booking = null;
+  try{
+   booking = await nylas.scheduler.bookings.create({
     requestBody: {
       startTime: Math.floor(startDateTime.getTime() / 1000),
       endTime: Math.floor(endDateTime.getTime() / 1000),
@@ -468,7 +465,12 @@ export async function createMeetingAction(formData: FormData) {
       configurationId: eventTypeData?.configurationId as string,
     },
   });
-  
+} catch (error) {
+  console.error("Errore durante la creazione della prenotazione:", error);
+}
+  if (!booking) {
+    return redirect("/dashboard");}
+    
   console.log('Booking Booked on Nylas:', booking);
 
   const bookingSupabase = await prisma.booking.create({

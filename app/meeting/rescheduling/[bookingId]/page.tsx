@@ -55,15 +55,16 @@ async function getAvailability(username: string, eventName: string) {
 
   return eventType;
 }
+type Props = {
+  params: Promise<{ bookingId: string}>
+  searchParams: Promise<{ [key: string]: string  | undefined }>
+}
 
 const Reschedule = async ({
   params,
   searchParams,
-}: {
-  params: { bookingId: string };
-  searchParams: { date?: string; time?: string };
-}) => {
-  const { bookingId } = await Promise.resolve(params);
+}:Props) => {
+  const { bookingId } = await params;
 
   const oldBooking = await prisma.booking.findUnique({
     where: {
