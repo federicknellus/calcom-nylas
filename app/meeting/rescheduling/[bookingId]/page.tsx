@@ -130,7 +130,6 @@ if (userData?.username === null) {
   return notFound()}
   // console.log(userData, eventData);
   const eventType = await getAvailability(userData?.username, eventData?.url);
-  // console.log("-------", eventType);
   if (!eventType) {
     return notFound();
   }

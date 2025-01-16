@@ -131,6 +131,92 @@ const CreateNewEvent = () => {
               <p className="text-red-500 text-sm">{fields.duration.errors}</p>
             </div>
 
+
+            <div className="grid gap-y-2">
+              <Label>Tempo minimo tra appuntamenti</Label>
+              <Select
+                name={fields.buffer.name}
+                key={fields.buffer.key}
+                defaultValue={fields.buffer.initialValue}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tempo tra appuntamenti" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Tempo tra appuntamenti</SelectLabel>
+                    <SelectItem value="0">0 Min</SelectItem>
+
+                    <SelectItem value="15">15 Min</SelectItem>
+                    <SelectItem value="30">30 Min</SelectItem>
+                    <SelectItem value="45">45 Min</SelectItem>
+                    <SelectItem value="60">1 Ora</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <p className="text-red-500 text-sm">{fields.buffer.errors}</p>
+            </div>
+
+
+            <div className="grid gap-y-2">
+              <Label>Anticipo minimo per prenotazione</Label>
+              <Select
+                name={fields.anticipo.name}
+                key={fields.anticipo.key}
+                defaultValue={fields.anticipo.initialValue}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tempo tra appuntamenti" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Tempo tra appuntamenti</SelectLabel>
+                    <SelectItem value="60">1 Ora</SelectItem>
+
+                    <SelectItem value="240">4 Ore</SelectItem>
+                    <SelectItem value="480">8 Ore</SelectItem>
+                    <SelectItem value="1440">1 Giorno</SelectItem>
+                    <SelectItem value="2880">2 Giorni</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <p className="text-red-500 text-sm">{fields.anticipo.errors}</p>
+            </div>
+
+
+            <div className="grid gap-y-2">
+              <Label>Tempo minimo per disdire</Label>
+              <Select
+                name={fields.cancellazione.name}
+                key={fields.cancellazione.key}
+                defaultValue={fields.cancellazione.initialValue}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tempo tra appuntamenti" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Tempo minimo per disdire</SelectLabel>
+                    
+                    <SelectItem value="60">1 Ora</SelectItem>
+                    <SelectItem value="240">4 Ore</SelectItem>
+                    <SelectItem value="480">8 Ore</SelectItem>
+                    <SelectItem value="1440">1 Giorno</SelectItem>
+                    <SelectItem value="2880">2 Giorni</SelectItem>
+
+
+
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              <p className="text-red-500 text-sm">{fields.buffer.errors}</p>
+            </div>
+
+
+
             <div className="grid gap-y-2">
               <input
                 type="hidden"

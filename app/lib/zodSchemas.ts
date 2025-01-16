@@ -85,6 +85,10 @@ export const eventTypeSchema = z.object({
   videoCallSoftware: z
     .string()
     .nonempty({ message: "Il software per le videochiamate è obbligatorio" }),
+  buffer: z.number().min(0, { message: "Il minimo tempo tra appuntamenti è 0" }),
+  cancellazione: z.number().min(0, { message: "Il preavviso minimo per la cancellazione è 0" }),
+  anticipo: z.number().min(0, { message: "Il minimo anticipo per la prenotazione è 0" }),
+
 });
 
 export function EventTypeServerSchema(options?: { 
@@ -137,6 +141,10 @@ export function EventTypeServerSchema(options?: {
     videoCallSoftware: z
       .string()
       .nonempty({ message: "Richiesto" }),
+
+      buffer: z.number().min(0, { message: "Il minimo tempo tra appuntamenti è 0" }),
+      cancellazione: z.number().min(0, { message: "Il preavviso minimo per la cancellazione è 0" }),
+      anticipo: z.number().min(0, { message: "Il minimo anticipo per la prenotazione è 0" }),
   });
 }
 

@@ -206,9 +206,12 @@ export async function CreateEventTypeAction(
       ],
       scheduler: {
         reschedulingUrl: process.env.RESCHEDULING_URL + ":booking_ref",
+        minBookingNotice: submission.value.anticipo,
+        minCancellationNotice: submission.value.cancellazione,
       },
       availability: {
-        durationMinutes: submission.value.duration,
+        durationMinutes: submission.value.duration+submission.value.buffer,
+
       },
     },
   })) as Configuration;
@@ -219,12 +222,16 @@ export async function CreateEventTypeAction(
   const newEventType = await prisma.eventType.create({
     data: {
       title: submission.value.title,
-      duration: submission.value.duration,
+      duration: submission.value.duration+submission.value.buffer,
+
       url: submission.value.url,
       description: submission.value.description,
       userId: session.user?.id as string,
       videoCallSoftware: submission.value.videoCallSoftware,
       configurationId: newConfiguration.data.id as string,
+      anticipo: submission.value.anticipo,
+      cancellazione: submission.value.cancellazione,
+      buffer: submission.value.buffer
     },
   });
 

@@ -71,7 +71,7 @@ const BookingPage = async ({ params, searchParams }: Props) => {
     ? new Date(currSearchParams?.date)
     : new Date();
   const eventType = await getData(username, eventName);
-
+  console.log('####',eventType)
   if (!eventType) {
     return notFound()
   }

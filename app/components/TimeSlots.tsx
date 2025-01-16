@@ -68,6 +68,7 @@ function calculateAvailableTimeSlots(
   date: string,
   duration: number
 ) {
+  
   // First, let's handle the case where we don't have availability data
   if (!dbAvailability.fromTime || !dbAvailability.tillTime) {
     return []; // Return empty array if no availability is set
@@ -86,7 +87,7 @@ function calculateAvailableTimeSlots(
     "yyyy-MM-dd HH:mm",
     new Date()
   );
-
+ 
   // Properly type and extract busy slots from Nylas data with error handling
   const busySlots = nylasData.data[0]?.object === 'free_busy'
     ? nylasData.data[0].timeSlots.map(slot => ({
@@ -102,6 +103,7 @@ function calculateAvailableTimeSlots(
   while (isBefore(currentSlot, availableTill)) {
     allSlots.push(new Date(currentSlot));
     currentSlot = addMinutes(currentSlot, duration);
+    
   }
 
   // Filter out busy slots and slots before the current time
@@ -150,7 +152,7 @@ export async function TimeSlots({
       </div>
     );
   }
-
+    
   const dbAvailability = { fromTime: data.fromTime, tillTime: data.tillTime };
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
