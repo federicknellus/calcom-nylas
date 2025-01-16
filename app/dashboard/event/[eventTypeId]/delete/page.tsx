@@ -1,5 +1,4 @@
 import { DeleteEventTypeAction } from "@/app/actions";
-import prisma from "@/app/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import React from "react";
 import { TriangleAlert } from 'lucide-react';
 
@@ -47,7 +45,7 @@ const DeleteEventType = async ({ params }: { params: Promise<{ eventTypeId: stri
             <Link href="/dashboard">Cancella</Link>
           </Button>
           <form action={DeleteEventTypeAction}>
-            <input type="hidden" name="id" value={params.eventTypeId} />
+            <input type="hidden" name="id" value={resolvedParams.eventTypeId} />
             <Button variant="destructive">Elimina</Button>
           </form>
         </CardFooter>

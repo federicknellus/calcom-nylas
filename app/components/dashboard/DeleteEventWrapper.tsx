@@ -20,6 +20,7 @@ export function DeleteEventWrapper({ eventId }: DeleteEventWrapperProps) {
         toast.success('Meeting cancellato con successo');
       }
     } catch (error) {
+      console.error(error)
       toast.error("Si è verificato un errore durante la cancellazione");
     }
   };

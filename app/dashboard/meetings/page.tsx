@@ -1,4 +1,3 @@
-import { cancelMeetingAction } from "@/app/actions";
 import { EmptyState } from "@/app/components/dashboard/EmptyState";
 import { auth } from "@/app/lib/auth";
 import { nylas } from "@/app/lib/nylas";
@@ -18,7 +17,6 @@ import React from "react";
 import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 interface BookingsWithConfig{
   title: string;

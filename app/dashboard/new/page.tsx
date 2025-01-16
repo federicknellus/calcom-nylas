@@ -167,7 +167,7 @@ const CreateNewEvent = () => {
                 defaultValue={fields.anticipo.initialValue}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tempo tra appuntamenti" />
+                  <SelectValue placeholder="Seleziona anticipo prenotazione" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -194,7 +194,7 @@ const CreateNewEvent = () => {
                 defaultValue={fields.cancellazione.initialValue}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tempo tra appuntamenti" />
+                  <SelectValue placeholder="Seleziona tempo minimo disdetta" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>

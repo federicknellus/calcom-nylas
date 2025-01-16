@@ -13,7 +13,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
-import { exec } from "child_process";
 
 interface Configuration {
   data: {
@@ -492,66 +491,65 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
 
-  // console.log('Booking Booked on Supabase:', bookingSupabase);
+  console.log('Booking Booked on Supabase:', bookingSupabase);
 
-  // TODO: Uncomment
 
-  // const sendWhatsAppBookingCreation = async () => {
-  //   const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+  const sendWhatsAppBookingCreation = async () => {
+    const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
 
-  //   const data = {
-  //     messaging_product: "whatsapp",
-  //     to: "39" + (formData.get("phone") as string),
-  //     type: "template",
-  //     template: {
-  //       name: "event_details_reminder_2",
-  //       language: {
-  //         code: "en_US",
-  //       },
-  //       components: [
-  //         {
-  //           type: "body",
-  //           parameters: [
-  //             {
-  //               type: "text",
-  //               text: eventTypeData?.title,
-  //             },
-  //             {
-  //               type: "text",
-  //               text: getUserData?.name,
-  //             },
-  //             {
-  //               type: "text",
-  //               text: data_whatsapp,
-  //             },
-  //             {
-  //               type: "text",
-  //               text: ora_whatsapp,
-  //             },//TODO aggiungere il campo per il luogo e per il link di rescheduling e cancellation
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //   };
+    const data = {
+      messaging_product: "whatsapp",
+      to: "39" + (formData.get("phone") as string),
+      type: "template",
+      template: {
+        name: "event_details_reminder_2",
+        language: {
+          code: "en_US",
+        },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              {
+                type: "text",
+                text: eventTypeData?.title,
+              },
+              {
+                type: "text",
+                text: getUserData?.name,
+              },
+              {
+                type: "text",
+                text: data_whatsapp,
+              },
+              {
+                type: "text",
+                text: ora_whatsapp,
+              },//TODO aggiungere il campo per il luogo e per il link di rescheduling e cancellation
+            ],
+          },
+        ],
+      },
+    };
 
-  //   try {
-  //     const response = await fetch(url, {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-  //     const result = await response.json();
-  //     console.log("Messaggio di prenotazione inviato con successo:", result);
-  //   } catch (error) {
-  //     console.error("Errore nell'inviare il messaggio di prenotazione:", error);
-  //   }
-  // };
+      const result = await response.json();
+      console.log("Messaggio di prenotazione inviato con successo:", result);
+    } catch (error) {
+      console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+    }
+  };
 
-  // sendWhatsAppBookingCreation();
+  sendWhatsAppBookingCreation();
 
   return redirect(`/success`);
 }
@@ -842,6 +840,7 @@ export async function cancelMeetingActionUser(
       return { error: null, success: true };
       }
     } catch (error) {
+      console.error(error)
       return { error: "Errore durante la cancellazione dell'evento", success: false };
     }
   } catch (error) {

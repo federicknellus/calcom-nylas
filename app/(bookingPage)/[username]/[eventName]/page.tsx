@@ -2,7 +2,6 @@ import { createMeetingAction } from "@/app/actions";
 import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { TimeSlots } from "@/app/components/TimeSlots";
-import NotFound from "@/app/not-found";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
