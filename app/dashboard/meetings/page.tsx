@@ -18,6 +18,7 @@ import React from "react";
 import { DeleteEventWrapper } from "@/app/components/dashboard/DeleteEventWrapper";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface BookingsWithConfig{
   title: string;
@@ -121,7 +122,6 @@ async function getData(userId: string) {
   // Now allBookingsWithConfig contains all bookings with their configuration data
   
   
-  
   return {data, userData, allBookingsWithConfig};
 }
 
@@ -130,10 +130,11 @@ const MeetingsPage = async () => {
   const session = await auth();
   const data = await getData(session?.user?.id as string);
   const bookings = data.allBookingsWithConfig;
-  
+
+
   return (
     <>
-      {data.data.data.length<1 ? (
+      {data.allBookingsWithConfig.length < 1 ? (
         <EmptyState
           title="Nessun meeting trovato"
           description="Non hai ancora nessuna prenotazione..."
@@ -148,64 +149,44 @@ const MeetingsPage = async () => {
               Le tue prenotazioni nel prossimo futuro
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {bookings.map((item) => (
-              <form key={item.bookingId} action={cancelMeetingAction}>
-                <input type="hidden" name="eventId" value={item.bookingId} />
-                <div className="grid grid-cols-3 justify-between items-center">
-                  <div>
-                
-                    <p className="text-muted-foreground text-sm">
-                      {format(fromUnixTime(item.startTime), "EEE, dd MMM")}
-                    </p>
-                    <p className="text-muted-foreground text-xs pt-1">
-                      {format(fromUnixTime(item.startTime), "hh:mm a")} -{" "}
-                      {format(fromUnixTime(item.endTime), "hh:mm a")}
-                    </p>
-                    <div className="flex items-center mt-1">
-                    <Phone
-                      className={`size-4 mr-2 `}
-                    />
-                      <span className="text-muted-foreground text-xs">
-                      {/* {item.conferencing?.details?.url ? "Entra nel meeting" : "Nessun link"} */}
-                      {item.contact}
-                      </span>
-
-                  </div>
-
-                  </div>
-                  <div className="flex flex-col items-start">
-                    <h2 className="text-sm font-medium">{item.title}</h2>
-                    <p className="text-sm text-muted-foreground">
-                      {/* Tu e {item.participants[0]?.name || item.participants[0]?.email || "basta"} */}
-                      {item.name}
-                    </p>
-
-                  </div>
-                  <div className="flex flex-row ml-auto space-x-2">
-                    <Link href={`/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}>
-                      <Button variant={"secondary"}>Ripianifica</Button>
-                    </Link>
-                    {/* <SubmitButton
-                      text="Modifica Evento"
-                      variant="secondary"
-                      className="w-fit flex "
-                      redirectUrl={`${process.env.NEXT_PUBLIC_URL}/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}
-                    /> */}
-                    <DeleteEventWrapper eventId={item.bookingId} />
-                    {/* <SubmitButton
-                      text=" "
-                      icon={<Trash size={16} name="trash" />}
-                      variant="destructive"
-                      className="w-fit flex "
-
-                    /> */}
-                  </div>
+      <CardContent>
+        {bookings.map((item) => (
+          <div key={item.bookingId}>  {/* Changed from form to div */}
+            <div className="grid grid-cols-3 justify-between items-center">
+              <div>
+                <p className="text-muted-foreground text-sm">
+                  {format(fromUnixTime(item.startTime), "EEE, dd MMM")}
+                </p>
+                <p className="text-muted-foreground text-xs pt-1">
+                  {format(fromUnixTime(item.startTime), "hh:mm a")} -{" "}
+                  {format(fromUnixTime(item.endTime), "hh:mm a")}
+                </p>
+                <div className="flex items-center mt-1">
+                  <Phone className="size-4 mr-2" />
+                  <span className="text-muted-foreground text-xs">
+                    {item.contact}
+                  </span>
                 </div>
-                <Separator className="my-3" />
-              </form>
-            ))}
-          </CardContent>
+              </div>
+              
+              <div className="flex flex-col items-start">
+                <h2 className="text-sm font-medium">{item.title}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {item.name}
+                </p>
+              </div>
+              
+              <div className="flex flex-row ml-auto space-x-2">
+                <Link href={`/rescheduling/${uuidsToCompactString(item.configurationId, item.bookingId)}`}>
+                  <Button variant="secondary">Ripianifica</Button>
+                </Link>
+                <DeleteEventWrapper eventId={item.bookingId} />
+              </div>
+            </div>
+            <Separator className="my-3" />
+          </div>
+        ))}
+      </CardContent>
         </Card>
       )}
     </>

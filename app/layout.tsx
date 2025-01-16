@@ -5,6 +5,7 @@ import { ThemeProvider } from "./components/dashboard/ThemeProvider";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,6 +41,7 @@ export default function RootLayout({
         >
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           {children}
+          <Toaster position="top-center" closeButton/>
         </ThemeProvider>
       </body>
     </html>

@@ -19,7 +19,7 @@ import Logo from "@/public/logo.png";
 import Image from "next/image";
 import { DasboardLinks } from "../components/dashboard/DasboardLinks";
 import { ThemeToggle } from "../components/dashboard/ThemeToggle";
-import { Toaster } from "@/components/ui/sonner";
+// import { Toaster } from "@/components/ui/sonner";
 import { auth, signOut } from "../lib/auth";
 import { CopyLink } from "../components/dashboard/CopyLinkMenuItem";
 
@@ -155,7 +155,7 @@ export default async function Dashboard({ children }: { children: ReactNode }) {
           </main>
         </div>
       </div>
-      <Toaster richColors closeButton />
+      {/* <Toaster richColors closeButton /> */}
     </>
   );
 }

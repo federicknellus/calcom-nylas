@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
+
 interface Configuration {
   data: {
   participants: ConfigParticipant[];
@@ -283,15 +284,38 @@ export async function EditEventTypeAction(_prevState: unknown, formData: FormDat
 
 export async function DeleteEventTypeAction(formData: FormData) {
   const session = await requireUser();
+  const eventId = formData.get("id") as string;
 
-  const deletedEvent = await prisma.eventType.delete({
+  const configurationId = await prisma.eventType.findFirst({
+    where:{
+      id: eventId
+    },
+      select: {
+        configurationId: true,
+      },
+  });
+
+    // First, delete related bookings
+    await prisma.booking.updateMany({
+      where: {
+        configurationId: configurationId?.configurationId as string,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+  const deletedEvent = await prisma.eventType.updateMany({
     where: {
       id: formData.get("id") as string,
       userId: session.user?.id as string,
     },
+    data: {
+      isDeleted: true,
+    }
   });
 
-  console.log('Deleted Event:', deletedEvent);
+  console.log('Deleted Event (softly):', deletedEvent);
 
   return redirect("/dashboard");
 }
@@ -458,7 +482,9 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
 
-  console.log('Booking Booked on Supabase:', bookingSupabase);
+  // console.log('Booking Booked on Supabase:', bookingSupabase);
+
+  // TODO: Uncomment
 
   // const sendWhatsAppBookingCreation = async () => {
   //   const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
@@ -520,6 +546,9 @@ export async function createMeetingAction(formData: FormData) {
   return redirect(`/success`);
 }
 
+
+// ################### CANCELLA MEETING PER PROFESSIONISTA ###################
+
 export async function cancelMeetingAction(formData: FormData) {
   const session = await requireUser();
 
@@ -543,18 +572,16 @@ export async function cancelMeetingAction(formData: FormData) {
     },
     select: {
       configurationId: true,
+      contact: true,
     },
   });
-  console.log("ID", formData.get("bookingId") as string);
-  console.log("config", booking?.configurationId);
+
   const bookingFound = await nylas.scheduler.bookings.find({
     bookingId: formData.get("bookingId") as string,
     queryParams: {
       configurationId: booking?.configurationId as string,
     },
   });
-  
-  console.log("Trovato il booking:", bookingFound);
   
   //TODO qua abbiamo usato questo excamotage perche al momento non abbiamo un metodo per cancellare un booking via api
   const data = await nylas.events.destroy({
@@ -576,9 +603,250 @@ export async function cancelMeetingAction(formData: FormData) {
     });
   }
 
+  if (!data) {
+    return ({ error: "C'è stato un problema con la cancellazione dell'evento", success: false });
+  }
 
-  revalidatePath("/dashboard/meetings");
+  const bookingDetails = await prisma.booking.findFirst({
+    where: {
+      bookingId: formData.get("bookingId") as string,
+    },
+    select: {
+      name: true,
+      configurationId: true,
+      eventType: {
+        select: {
+          title: true,
+          url: true,
+          user: {
+            select: {
+              name: true,
+              grantId: true,
+              grantEmail: true,
+              image: true,
+            }
+          }
+        }
+      }
+    }
+  });
+
+// console.log('Phone:', booking?.contact);  
+
+const sendWhatsAppBookingCancellation = async () => {
+  const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+  const data = {
+    messaging_product: "whatsapp",
+    to: "39" + (booking?.contact as string),
+    type: "template",
+            template: {
+              name: "cancellazione_effettuata",
+              language: {
+                code: "it",
+              },
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: bookingDetails?.name  },
+                    { type: "text", text: bookingDetails?.eventType?.title },
+                    { type: "text", text: bookingDetails?.eventType?.user.name },
+                  ],
+                },
+                {
+                  type: "button",
+                  sub_type: "url",
+                  index: "0",
+                  parameters: [
+                    {
+                      type: "text",
+                      text: `${bookingDetails?.eventType?.url}`,
+                    },
+                  ],
+                },
+              ],
+            },
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    console.log("Messaggio di prenotazione inviato con successo:", result);
+    return ({ error: null, success: true });
+  } catch (error) {
+    console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+    return ({ error: "Errore nell'inviare il messaggio di prenotazione", success: false });
+  }
 }
+  sendWhatsAppBookingCancellation();
+  revalidatePath("/dashboard/meetings");
+} 
+
+// ################### CANCELLA MEETING PER UTENTE FINALE ###################
+
+type FormState = {
+  error: string | null;
+  success: boolean;
+};
+
+export async function cancelMeetingActionUser(
+  prevState: FormState,
+  formData: FormData | null
+): Promise<FormState> {
+  if (!formData) {
+    return { error: "Dati del form mancanti", success: false };
+  }
+
+  const bookingId = formData.get("bookingId");
+  const configId = formData.get("configId");
+
+  if (!bookingId || !configId) {
+    return { error: "ID prenotazione mancante", success: false };
+  }
+
+  try {
+    const bookingDetails = await prisma.booking.findFirst({
+      where: {
+        bookingId: bookingId as string,
+      },
+      select: {
+        name: true,
+        configurationId: true,
+        eventType: {
+          select: {
+            title: true,
+            url: true,
+            user: {
+              select: {
+                name: true,
+                grantId: true,
+                grantEmail: true,
+                image: true,
+              }
+            }
+          }
+        }
+      }
+    });
+
+    console.log('Booking Details:', bookingDetails);
+
+    if (!bookingDetails) {
+      return { error: "Prenotazione non trovata", success: false };
+    }
+
+    const bookingFound = await nylas.scheduler.bookings.find({
+      bookingId: bookingId as string,
+      queryParams: {
+        configurationId: configId as string,
+      },
+    });
+
+    if (bookingFound.data.status === "cancelled") {
+      return { error: "Prenotazione già cancellata", success: false };
+    }
+    
+    try {
+      const data = await nylas.events.destroy({
+        eventId: bookingFound.data.eventId,
+        identifier: bookingDetails.eventType.user.grantId as string,
+        queryParams: {
+          calendarId: bookingDetails.eventType.user.grantEmail as string,
+          notifyParticipants: false,
+        },
+      });
+
+      if (data) {
+        await prisma.booking.update({
+          where: {
+            bookingId: bookingId as string,
+          },
+          data: {
+            isDeleted: true,
+          },
+        });
+
+        // Sending whatsapp
+
+        const sendWhatsAppBookingCancellation = async () => {
+          const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+          
+          const data = {
+            messaging_product: "whatsapp",
+            to: "39" + (formData.get("phone") as string),
+            type: "template",
+            template: {
+              name: "cancellazione_effettuata",
+              language: {
+                code: "it",
+              },
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: bookingDetails?.name  },
+                    { type: "text", text: bookingDetails?.eventType?.title },
+                    { type: "text", text: bookingDetails?.eventType?.user.name },
+                  ],
+                },
+                {
+                  type: "button",
+                  sub_type: "url",
+                  index: "0",
+                  parameters: [
+                    {
+                      type: "text",
+                      text: `${bookingDetails?.eventType?.url}`,
+                    },
+                  ],
+                },
+              ],
+            },
+          };
+      
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+      
+            const result = await response.json();
+            console.log("Messaggio di prenotazione inviato con successo:", result);
+          } catch (error) {
+            console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+          }
+      }
+      sendWhatsAppBookingCancellation();
+      return { error: null, success: true };
+      }
+    } catch (error) {
+      return { error: "Errore durante la cancellazione dell'evento", success: false };
+    }
+  } catch (error) {
+    console.error('Error in cancelMeetingActionUser:', error);
+    return { error: "Si è verificato un errore imprevisto", success: false };
+  }
+  
+  return { error: "Operazione non completata", success: false };
+}
+
+
+
+// ################### REPROGRAMMA MEETING PER UTENTE FINALE ###################
+
+
 
 export async function rescheduleMeetingAction(formData: FormData) {
   const booking_id = formData.get("bookingId") as string;
@@ -591,6 +859,35 @@ export async function rescheduleMeetingAction(formData: FormData) {
 
   console.log(startDateTime);
   console.log("times", Math.floor(startDateTime.getTime() / 1000));
+  
+  // Fetching data per whatsapp
+
+  const bookingDetails = await prisma.booking.findFirst({
+    where: {
+      bookingId: booking_id,
+    },
+    select: {
+      name: true,
+      configurationId: true,
+      eventType: {
+        select: {
+          title: true,
+          luogo: true,
+          url: true,
+          user: {
+            select: {
+              name: true,
+              grantId: true,
+              grantEmail: true,
+              image: true,
+              indirizzo: true,
+              nome_studio: true,
+            }
+          }
+        }
+      }
+    }
+  });
 
   try {
     const rescheduledBooking = await nylas.scheduler.bookings.reschedule({
@@ -619,14 +916,77 @@ export async function rescheduleMeetingAction(formData: FormData) {
       },
     });
 
+    const sendWhatsAppBookingCancellation = async () => {
+      const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+      
+      // Da correggere
+      const data = {
+        messaging_product: "whatsapp",
+        to: "39" + (formData.get("phone") as string),
+        type: "template",
+        template: {
+          name: "cancellazione_effettuata",
+          language: {
+            code: "it",
+          },
+          components: [
+            {
+              type: "header",
+              parameters: [
+                {type: "text", text: bookingDetails?.eventType.user.name}
+              ]
+            },
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: bookingDetails?.name },
+                { type: "text", text: bookingDetails?.eventType?.title },
+                { type: "text", text: bookingDetails?.eventType?.user.name },
+                { type: "text", text: bookingDetails?.eventType?.luogo},
+              ],
+            },
+            {
+              type: "button",
+              sub_type: "url",
+              index: "0",
+              parameters: [
+                {
+                  type: "text",
+                  text: `${bookingDetails?.eventType?.url}`,
+                },
+              ],
+            },
+          ],
+        },
+      };
+  
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+  
+        const result = await response.json();
+        console.log("Messaggio di prenotazione inviato con successo:", result);
+      } catch (error) {
+        console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+      }
+  }
+  sendWhatsAppBookingCancellation();
+
     if (!rescheduledPrisma) {
       throw new Error(
         "Errore durante l'aggiornamento della prenotazione nel database"
       ); // Caso in cui il database non si aggiorna
     }
 
-    console.log("rescheduled booking", rescheduledBooking);
-    console.log("rescheduled booking", rescheduledPrisma);
+    // console.log("rescheduled booking", rescheduledBooking);
+    // console.log("rescheduled booking", rescheduledPrisma);
+
   } catch (error) {
     console.error("Errore durante la riprogrammazione della riunione:", error);
     throw new Error(

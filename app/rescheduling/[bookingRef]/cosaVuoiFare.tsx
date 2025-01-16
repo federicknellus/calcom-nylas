@@ -3,12 +3,14 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SubmitButton } from "@/app/components/SubmitButton";
-import { BookMarked, CalendarX2, Clock } from "lucide-react";
+import {CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { cancelMeetingAction } from "@/app/actions";
-import { Config } from "tailwindcss";
-import { use } from "react";
+import {cancelMeetingActionUser } from "@/app/actions";
+import { Input } from "@/components/ui/input";
+import React, { useActionState } from "react";
+import { toast } from "sonner";
+
 
 export const ActionChoiceCard = ({
     image,
@@ -23,6 +25,7 @@ export const ActionChoiceCard = ({
     citta,
     telefono,
     duration,
+    contact
 }: {image:string, 
     configId:string,
     bookingId:string, 
@@ -34,10 +37,23 @@ export const ActionChoiceCard = ({
     indirizzo:string | null,
     citta:string | null,
     telefono:string | null,
-    duration:number
+    duration:number,
+    contact:string
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const initialState = { error: null, success: false };
+  const [state, formAction] = useActionState(cancelMeetingActionUser, initialState);
+
+  React.useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+    if (state?.success) {
+      toast.success("Prenotazione cancellata con successo");
+      router.push('/');
+    }
+  }, [state]);
 
   const handleReschedule = () => {
     const params = new URLSearchParams(searchParams);
@@ -105,15 +121,16 @@ export const ActionChoiceCard = ({
           <h2 className="text-lg font-semibold text-left mb-4">
             Cosa desideri fare?
           </h2>
-          <form action={cancelMeetingAction}>
-            <input type="hidden" name="configId" value={configId} />
-            <input type="hidden" name="bookingId" value={bookingId} />
+          <form action={formAction}>
+            <Input type="hidden" name="configId" value={configId} />
+            <Input type="hidden" name="bookingId" value={bookingId} />
+            <Input type="hidden" name="phone" value={contact} />
             <div className="flex space-y-4 space-x-4 justify-between">
-            <SubmitButton text="Riprogramma" className="self-end w-full" />
-            <Separator orientation="vertical" className="h-8" />
             <SubmitButton text="Cancella" className="self-end bg-red-500 w-full hover:bg-red-700" />
+            {/* <Separator orientation="vertical" className="h-8" /> */}
             </div>
           </form>
+          <SubmitButton handleClickFunction={handleReschedule} text="Riprogramma" className="self-end w-full" />
         </div>
       </CardContent>
     </Card>

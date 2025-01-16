@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface DeleteEventDialogProps {
   eventId: string;
@@ -12,34 +12,40 @@ interface DeleteEventDialogProps {
 
 export function DeleteEventDialog({ eventId, onDelete }: DeleteEventDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = () => {
-    onDelete(eventId);
-    setOpen(false);
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDelete(eventId);
+    } finally {
+      setIsDeleting(false);
+      setOpen(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" className="w-fit flex">
-          <Trash size={16} />
+          <Trash2 size={16} />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogTitle>Conferma Cancellazione</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this event? This action cannot be undone.
+            Sei sicuro di voler cancellare questo evento? Questa azione è irreversibile.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setOpen(false)} disabled={isDeleting}>Annulla</Button>
           <Button
             
             variant="destructive"
             className="w-fit flex"
             onClick={handleDelete}
-          >Delete</Button>
+          >Conferma</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
