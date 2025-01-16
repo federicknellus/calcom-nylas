@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
 import { exec } from "child_process";
+
 interface Configuration {
   data: {
   participants: ConfigParticipant[];
@@ -927,7 +928,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
         to: "39" + (formData.get("phone") as string),
         type: "template",
         template: {
-          name: "cancellazione_effettuata",
+          name: "ripgrammazione_effettuata",
           language: {
             code: "it",
           },
