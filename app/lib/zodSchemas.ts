@@ -148,3 +148,19 @@ export function EventTypeServerSchema(options?: {
   });
 }
 
+export const eventDetailsZod = z.object({
+  name: z
+    .string()
+    .min(2, "Il nome deve contenere almeno 2 caratteri.")
+    .max(50, "Il nome non può superare i 50 caratteri.")
+    .regex(/^[\p{L}\p{M}'-]+([\s\p{L}\p{M}'-]+)*$/u, "Il nome contiene caratteri non validi."), // Supporta caratteri Unicode, accenti, spazi e apostrofi
+  phone: z
+    .string()
+    .regex(
+      /^\+?[0-9]{8,15}$/,
+      "Il numero di telefono deve contenere solo cifre (con un prefisso opzionale) e avere una lunghezza tra 8 e 15 caratteri."
+    ),
+  email: z
+    .string()
+    .email("L'email inserita non è valida.")
+});
