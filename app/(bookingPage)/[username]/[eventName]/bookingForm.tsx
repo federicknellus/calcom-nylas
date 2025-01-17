@@ -25,6 +25,7 @@ export function BookingForm({
   meetingLength,
   disableButton,
 }: BookingFormProps) {
+
   console.log('disable',disableButton)
     const [form, fields] = useForm({
         id: "booking-form",
@@ -39,6 +40,8 @@ export function BookingForm({
     
       const [state, formAction] = useActionState(createMeetingAction, null);
       console.log('state',state) //TODO l'ho fixato cosi ma non saprei come fare
+      console.log('form',form)  
+
   return (
     <form 
       id={form.id}

@@ -61,7 +61,7 @@ export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, 
   };
 
   return (
-    <Card>
+    <Card className="shadow-none border-transparent">
       <CardHeader>
         <CardTitle>Impostazioni</CardTitle>
         <CardDescription>Gestisci le tue impostazioni</CardDescription>
@@ -76,12 +76,20 @@ export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, 
               key={fields.fullName.key}
               placeholder="Mario Rossi"
               defaultValue={fullName}
+              type="text"
+              required
             />
             <p className="text-red-500 text-sm">{fields.fullName.errors}</p>
           </div>
           <div className="flex flex-col gap-y-2">
             <Label>Email</Label>
-            <Input disabled placeholder="Mario Rossi" defaultValue={email} />
+            <Input 
+            disabled 
+            placeholder="Mariorossi@gmail.com" 
+            defaultValue={email} 
+            required
+            />
+            
           </div>
 
           <div className="grid gap-y-5">
@@ -169,7 +177,7 @@ export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, 
             key={fields.telefono.key}
             placeholder="333 222 9999"
             value={phone}
-            
+            required
             />
             <p className="text-red-500 text-sm">{fields.telefono.errors}</p>
           </div>
