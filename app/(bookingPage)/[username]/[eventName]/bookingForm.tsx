@@ -14,6 +14,7 @@ interface BookingFormProps {
   fromTime: string | undefined;
   eventDate: string | undefined;
   meetingLength: number;
+  disableButton: boolean;
 }
 
 export function BookingForm({ 
@@ -21,9 +22,10 @@ export function BookingForm({
   username, 
   fromTime, 
   eventDate, 
-  meetingLength 
+  meetingLength,
+  disableButton,
 }: BookingFormProps) {
-
+  console.log('disable',disableButton)
     const [form, fields] = useForm({
         id: "booking-form",
         onValidate({ formData }) {
@@ -86,7 +88,7 @@ export function BookingForm({
       </div>
 
       <div className="flex-grow"></div>
-      <SubmitButton className="self-end" text="Prenota" />
+      <SubmitButton className="self-end" text="Prenota" disableButton={disableButton}/>
     </form>
   );
 }

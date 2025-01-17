@@ -26,9 +26,10 @@ interface iAppProps {
   className?: string;
   handleClickFunction?: () => void;
   testoToaster?: string
+  disableButton?: boolean
 }
 
-export function SubmitButton({ text, icon, variant, redirectUrl, className, handleClickFunction, testoToaster}: iAppProps) {
+export function SubmitButton({ text, icon, variant, redirectUrl, className, handleClickFunction, testoToaster, disableButton}: iAppProps) {
   const { pending } = useFormStatus();
   const wasPending = useRef(pending); // Track previous pending state
 
@@ -58,15 +59,18 @@ export function SubmitButton({ text, icon, variant, redirectUrl, className, hand
         <Button disabled variant="outline" className={cn("w-fit", className)}>
           <Loader2 className="size-4 mr-2 animate-spin" /> Attendere
         </Button>
-      ) : (
+      ) : (<>
         <Button
           variant={variant}
           type="submit"
           className={cn("w-fit", className)}
           onClick={handleClickFunction||handleClick}
+          disabled={disableButton}
         >
           {icon}{text}
         </Button>
+  {disableButton && <p className="text-red-500">Siamo spiacenti, questa data non è disponibile per le prenotazioni </p>}
+  </>
       )}
     </>
   );

@@ -369,6 +369,7 @@ type UpdateAvailabilityResult = {
 };
 
 export async function updateAvailabilityAction(formData: FormData): Promise<UpdateAvailabilityResult> {
+  console.log('formdata',formData)
   try {
     const session = await requireUser();
 
@@ -500,7 +501,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
   console.error("Errore durante la creazione della prenotazione:", error);
 }
   if (!booking) {
-    return redirect("/dashboard");}
+    return redirect("/error");}
     
   // console.log('Booking Booked on Nylas:', booking);
 
@@ -593,6 +594,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
       console.log("Messaggio di prenotazione inviato con successo:", result);
     } catch (error) {
       console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+      redirect('/error')
     }
   };
 

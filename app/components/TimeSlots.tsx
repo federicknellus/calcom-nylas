@@ -17,6 +17,7 @@ interface iappProps {
   selectedDate: Date;
   userName: string;
   meetingDuration: number;
+  daysofWeek: { day: string; isActive: boolean }[];
 }
 
 async function getAvailability(selectedDate: Date, userName: string) {
@@ -138,12 +139,12 @@ export async function TimeSlots({
   selectedDate,
   userName,
   meetingDuration,
+  daysofWeek,
 }: iappProps) {
   const { data, nylasCalendarData } = await getAvailability(
     selectedDate,
     userName
   );
-
   // Early return if no availability is set
   if (!data?.fromTime || !data?.tillTime) {
     return (
@@ -152,8 +153,17 @@ export async function TimeSlots({
       </div>
     );
   }
-    
+  const dayOfWeekFromUrl = format(selectedDate, 'EEEE')
+  const isSelectedDayActive = daysofWeek.find(d => d.day === dayOfWeekFromUrl)?.isActive;
+  if (!isSelectedDayActive) {
+    return (
+      <div>
+        <p>Questa giornata non è disponibile per appuntamenti!</p>
+      </div>
+    );
+  }
   const dbAvailability = { fromTime: data.fromTime, tillTime: data.tillTime };
+
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
   const availableSlots = calculateAvailableTimeSlots(
@@ -162,7 +172,8 @@ export async function TimeSlots({
     formattedDate,
     meetingDuration
   );
-
+  
+  console.log('slotsss',availableSlots)
   return (
     <div>
       <p className="text-base font-semibold">

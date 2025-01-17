@@ -33,7 +33,7 @@ interface TimeTableProps {
     const [selectedTimes, setSelectedTimes] = useState<
     Record<string, { fromTime: string; tillTime: string }>
   >({});
-  
+    console.log('dataa',data)
     // Helper function to filter available end times
     const getAvailableEndTimes = (fromTime: string) => {
       if (!fromTime) return times;
@@ -100,58 +100,61 @@ interface TimeTableProps {
         action={handleSubmit}
       >
           <CardContent className="flex flex-col gap-y-4">
-            {data.map((item) => (
+            {[...data].sort((a, b) => {
+              const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+              return daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day);
+            }).map((item) => (
               <div
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center gap-4"
               key={item.id}
             >
               <input type="hidden" name={`id-${item.id}`} value={item.id} />
               <div className="flex items-center gap-x-3">
-                <Switch
-                  name={`isActive-${item.id}`}
-                  defaultChecked={item.isActive}
-                />
-                <p>{translateDayToItalian(item.day)}</p>
+              <Switch
+                name={`isActive-${item.id}`}
+                defaultChecked={item.isActive}
+              />
+              <p>{translateDayToItalian(item.day)}</p>
               </div>
-  
-                    <Select
-                      name={`fromTime-${item.id}`}
-                      defaultValue={item.fromTime}
-                      onValueChange={(value) => handleFromTimeChange(item.id, value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Da" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {times.map((time) => (
-                            <SelectItem key={time.time} value={time.time}>
-                              {time.time}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      name={`tillTime-${item.id}`}
-                      value={selectedTimes[item.id]?.tillTime || item.tillTime}
-                      onValueChange={(value) =>
-                        handleTillTimeChange(item.id, value)
-                      }>
-                      <SelectTrigger>
-                        <SelectValue placeholder="A" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {getAvailableEndTimes(selectedTimes[item.id]?.fromTime).map((time) => (
-                            <SelectItem key={time.time} value={time.time}>
-                              {time.time}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
+        
+                <Select
+                  name={`fromTime-${item.id}`}
+                  defaultValue={item.fromTime}
+                  onValueChange={(value) => handleFromTimeChange(item.id, value)}
+                >
+                  <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Da" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectGroup>
+                    {times.map((time) => (
+                    <SelectItem key={time.time} value={time.time}>
+                      {time.time}
+                    </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Select
+                  name={`tillTime-${item.id}`}
+                  value={selectedTimes[item.id]?.tillTime || item.tillTime}
+                  onValueChange={(value) =>
+                  handleTillTimeChange(item.id, value)
+                  }>
+                  <SelectTrigger>
+                  <SelectValue placeholder="A" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  <SelectGroup>
+                    {getAvailableEndTimes(selectedTimes[item.id]?.fromTime).map((time) => (
+                    <SelectItem key={time.time} value={time.time}>
+                      {time.time}
+                    </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  </SelectContent>
+                </Select>
+                </div>
             ))}
                 </CardContent>
             <CardFooter>

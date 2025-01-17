@@ -11,11 +11,13 @@ import {
   parseDate,
 } from "@internationalized/date";
 
+
 interface iAppProps {
   daysofWeek: { day: string; isActive: boolean }[];
 }
 
 export function RenderCalendar({ daysofWeek }: iAppProps) {
+  console.log('daysofweek',daysofWeek)
   const router = useRouter();
   const searchParams = useSearchParams();
 

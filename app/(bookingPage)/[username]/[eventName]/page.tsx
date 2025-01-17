@@ -12,6 +12,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import React from "react";
 import { BookingForm } from "./bookingForm";
+import { format } from "date-fns";
 
 async function getData(username: string, eventName: string) {
 
@@ -84,6 +85,14 @@ const BookingPage = async ({ params, searchParams }: Props) => {
   }).format(selectedDate);
 
   const showForm = !!currSearchParams?.date && !!currSearchParams?.time;
+  
+    const dayOfWeekFromUrl = format(selectedDate, 'EEEE')
+    const isSelectedDayActive = eventType.user.Availability.find(d => d.day === dayOfWeekFromUrl)?.isActive;
+    let disableButton = false
+    if (!isSelectedDayActive) {
+      disableButton = true
+      console.log('disable',disableButton)
+    }
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
       {showForm ? (
@@ -150,6 +159,7 @@ const BookingPage = async ({ params, searchParams }: Props) => {
         fromTime={currSearchParams.time}
         eventDate={currSearchParams.date}
         meetingLength={eventType.duration}
+        disableButton = {disableButton}
       />
           </CardContent>
         </Card>
@@ -224,6 +234,7 @@ const BookingPage = async ({ params, searchParams }: Props) => {
               selectedDate={selectedDate}
               userName={username}
               meetingDuration={eventType.duration}
+              daysofWeek={eventType.user.Availability}
             />
           </CardContent>
         </Card>
