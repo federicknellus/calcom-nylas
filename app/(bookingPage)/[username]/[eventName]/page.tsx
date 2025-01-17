@@ -11,6 +11,7 @@ import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import React from "react";
+import { BookingForm } from "./bookingForm";
 
 async function getData(username: string, eventName: string) {
 
@@ -64,6 +65,7 @@ type Props = {
 };
 
 const BookingPage = async ({ params, searchParams }: Props) => {
+  
   const { username, eventName } = await params;
   const currSearchParams = await searchParams;
   const selectedDate = currSearchParams?.date
@@ -142,43 +144,13 @@ const BookingPage = async ({ params, searchParams }: Props) => {
               className="hidden md:block h-full w-[1px]"
             />
 
-            <form
-              className="flex flex-col gap-y-4"
-              action={createMeetingAction}
-            >
-              <input type="hidden" name="eventTypeId" value={eventType.id} />
-              <input type="hidden" name="username" value={username} />
-              <input
-                type="hidden"
-                name="fromTime"
-                value={currSearchParams.time}
-              />
-              <input
-                type="hidden"
-                name="eventDate"
-                value={currSearchParams.date}
-              />
-              <input
-                type="hidden"
-                name="meetingLength"
-                value={eventType.duration}
-              />
-              <div className="flex flex-col gap-y-1">
-                <Label>Il tuo nome</Label>
-                <Input name="name" placeholder="Il tuo nome" />
-              </div>
-
-              <div className="flex flex-col gap-y-1">
-                <Label>La tua email</Label>
-                <Input name="email" placeholder="mariorossi@gmail.com" />
-              </div>
-              <div className="flex flex-col gap-y-1">
-                <Label>Il tuo numero</Label>
-                <Input name="phone" placeholder="3312523920" />
-              </div>
-              <div className="flex-grow"></div>
-              <SubmitButton className="self-end" text="Prenota" />
-            </form>
+      <BookingForm 
+        eventTypeId={eventType.id}
+        username={username}
+        fromTime={currSearchParams.time}
+        eventDate={currSearchParams.date}
+        meetingLength={eventType.duration}
+      />
           </CardContent>
         </Card>
       ) : (

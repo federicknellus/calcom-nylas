@@ -23,6 +23,7 @@ import React from "react";
 import { requireUser } from "@/app/lib/hooks";
 import { updateAvailabilityAction } from "@/app/actions";
 import { translateDayToItalian } from "@/app/lib/translateDayToItalian"
+import TimeTable from "./timeTable";
 
 async function getData(userId: string) {
   const data = await prisma.availability.findMany({
@@ -44,67 +45,8 @@ const AvailabilityPage = async () => {
   const data = await getData(session.user?.id as string);
   // console.log(data)
   
-  ;
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Disponibilità</CardTitle>
-        <CardDescription>
-          In questa sezione puoi impostare la tua disponibilità per i diversi giorni della settimana.
-        </CardDescription>
-      </CardHeader>
-      <form action={updateAvailabilityAction}>
-        <CardContent className="flex flex-col gap-y-4">
-          {data.map((item) => (
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center gap-4"
-              key={item.id}
-            >
-              <input type="hidden" name={`id-${item.id}`} value={item.id} />
-              <div className="flex items-center gap-x-3">
-                <Switch
-                  name={`isActive-${item.id}`}
-                  defaultChecked={item.isActive}
-                />
-                <p>{translateDayToItalian(item.day)}</p>
-              </div>
-              <Select name={`fromTime-${item.id}`} defaultValue={item.fromTime}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Da" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {times.map((time) => (
-                      <SelectItem key={time.id} value={time.time}>
-                        {time.time}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <Select name={`tillTime-${item.id}`} defaultValue={item.tillTime}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="A" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {times.map((time) => (
-                      <SelectItem key={time.id} value={time.time}>
-                        {time.time}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </CardContent>
-        <CardFooter>
-          <SubmitButton text="Salva" />
-        </CardFooter>
-      </form>
-    </Card>
-  );
+     <TimeTable data={data} />);
 };
 
 export default AvailabilityPage;

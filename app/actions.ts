@@ -3,16 +3,19 @@
 import { parseWithZod } from "@conform-to/zod";
 import prisma from "./lib/db";
 import { requireUser } from "./lib/hooks";
+import { toast } from "sonner"
 import {
   aboutSettingsSchema,
   EventTypeServerSchema,
   onboardingSchema,
+  eventDetailsZod,
 } from "./lib/zodSchemas";
 import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
+import { promise } from "zod";
 
 interface Configuration {
   data: {
@@ -360,27 +363,34 @@ export async function updateEventTypeStatusAction(
   }
 }
 
-export async function updateAvailabilityAction(formData: FormData):Promise<void> {
-  const session = await requireUser();
+type UpdateAvailabilityResult = {
+  status: "success" | "error";
+  message: string;
+};
 
-  if (!session.user) {
-    throw new Error("Utente non trovato");
-  }
-
-  const rawData = Object.fromEntries(formData.entries());
-  const availabilityData = Object.keys(rawData)
-    .filter((key) => key.startsWith("id-"))
-    .map((key) => {
-      const id = key.replace("id-", "");
-      return {
-        id,
-        isActive: rawData[`isActive-${id}`] === "on",
-        fromTime: rawData[`fromTime-${id}`] as string,
-        tillTime: rawData[`tillTime-${id}`] as string,
-      };
-    });
-
+export async function updateAvailabilityAction(formData: FormData): Promise<UpdateAvailabilityResult> {
   try {
+    const session = await requireUser();
+
+    if (!session.user) {
+      throw new Error("Utente non trovato");
+    }
+
+    const rawData = Object.fromEntries(formData.entries());
+    const availabilityData = Object.keys(rawData)
+      .filter((key) => key.startsWith("id-"))
+      .map((key) => {
+        const id = key.replace("id-", "");
+        return {
+          id,
+          isActive: rawData[`isActive-${id}`] === "on",
+          fromTime: rawData[`fromTime-${id}`] as string,
+          tillTime: rawData[`tillTime-${id}`] as string,
+        };
+      });
+
+    console.log("Parsed availability data:", availabilityData);
+
     await prisma.$transaction(
       availabilityData.map((item) =>
         prisma.availability.update({
@@ -394,21 +404,35 @@ export async function updateAvailabilityAction(formData: FormData):Promise<void>
       )
     );
 
+    // Revalidate the cache if necessary
     revalidatePath("/dashboard/availability");
-    // return {
-    //   status: "success",
-    //   message: "Disponibilità modificate con successo",
-    // };
+
+    return {
+      status: "success",
+      message: "Disponibilità modificate con successo",
+    };
   } catch (error) {
     console.error("Errore nel modificare le disponibilità:", error);
-    // return {
-    //   status: "error",
-    //   message: "Non siamo riusciti a modificare le disponibilità",
-    // };
+
+    // Ensure a response is always returned
+    return {
+      status: "error",
+      message: "Non siamo riusciti a modificare le disponibilità",
+    };
   }
 }
 
-export async function createMeetingAction(formData: FormData) {
+export async function createMeetingAction(prevState: any, formData: FormData) {
+  const submission = await parseWithZod(formData, {
+    schema: eventDetailsZod,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+ const partialData = submission.value
+
   const getUserData = await prisma.user.findUnique({
     where: {
       username: formData.get("username") as string,
@@ -464,8 +488,8 @@ export async function createMeetingAction(formData: FormData) {
       startTime: Math.floor(startDateTime.getTime() / 1000),
       endTime: Math.floor(endDateTime.getTime() / 1000),
       guest: {
-        name: formData.get("name") as string,
-        email: formData.get("email") as string, //TODO qui harcodiamo la nostra?
+        name: partialData.name as string,
+        email: partialData.email as string, //TODO qui harcodiamo la nostra?
       },
     },
     queryParams: {
@@ -478,12 +502,12 @@ export async function createMeetingAction(formData: FormData) {
   if (!booking) {
     return redirect("/dashboard");}
     
-  console.log('Booking Booked on Nylas:', booking);
+  // console.log('Booking Booked on Nylas:', booking);
 
   const bookingSupabase = await prisma.booking.create({
     data: {
-      name: formData.get("name") as string,
-      contact: formData.get("phone") as string,
+      name: partialData.name as string,
+      contact: partialData.phone as string,
       configurationId: eventTypeData?.configurationId as string,
       bookingId: booking.data.bookingId,
       startTime: Math.floor(startDateTime.getTime() / 1000),
@@ -491,7 +515,7 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
 
-  console.log('Booking Booked on Supabase:', bookingSupabase);
+  // console.log('Booking Booked on Supabase:', bookingSupabase);
 
 
   const sendWhatsAppBookingCreation = async (x:string) => {
@@ -500,7 +524,7 @@ export async function createMeetingAction(formData: FormData) {
 
     const data = {
       messaging_product: "whatsapp",
-      to: "39" + (formData.get("phone") as string),
+      to: "39" + (partialData.phone as string),
       type: "template",
       template: {
         name: "programmazione_effettuata",
@@ -878,9 +902,8 @@ export async function cancelMeetingActionUser(
 
 // ################### REPROGRAMMA MEETING PER UTENTE FINALE ###################
 
-
-
 export async function rescheduleMeetingAction(formData: FormData) {
+  
   const booking_id = formData.get("bookingId") as string;
   const config_id = formData.get("configId") as string;
   const formTime = formData.get("fromTime") as string;
@@ -899,6 +922,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
       bookingId: booking_id,
     },
     select: {
+      contact : true,
       name: true,
       configurationId: true,
       eventType: {
@@ -954,7 +978,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
       // Da correggere
       const data = {
         messaging_product: "whatsapp",
-        to: "39" + (formData.get("phone") as string),
+        to: "39" + (bookingDetails?.contact as string),
         type: "template",
         template: {
           name: "ripgrammazione_effettuata",
@@ -971,7 +995,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
             {
               type: "body",
               parameters: [
-                { type: "text", text: bookingDetails?.name },
+                { type: "text", text: bookingDetails?.name},
                 { type: "text", text: bookingDetails?.eventType?.title },
                 { type: "text", text: bookingDetails?.eventType?.user.name },
                 { type: "text", text: bookingDetails?.eventType?.luogo},
