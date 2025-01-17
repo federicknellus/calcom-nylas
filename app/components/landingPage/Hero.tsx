@@ -8,7 +8,7 @@ export function Hero() {
     <section className="relative flex items-center justify-center">
       <div className="relative items-center w-full py-12 lg:py-20">
         <div className="text-center">
-          <span className="text-sm text-primary font-medium tracking-tight bg-primary/10 px-4 py-2 rounded-full">
+          <span className="text-md md:text-sm text-wrap text-primary font-medium tracking-tight bg-primary/10 px-4 py-2 rounded-full">
             Ciao, ti disturbo? Vorrei prenotare un appunta...😪 
           </span>
 
