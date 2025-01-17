@@ -226,7 +226,7 @@ export async function CreateEventTypeAction(
     data: {
       title: submission.value.title,
       duration: submission.value.duration+submission.value.buffer,
-
+      luogo: submission.value.sede,
       url: submission.value.url,
       description: submission.value.description,
       userId: session.user?.id as string,
@@ -280,6 +280,7 @@ export async function EditEventTypeAction(_prevState: unknown, formData: FormDat
       url: submission.value.url,
       description: submission.value.description,
       videoCallSoftware: submission.value.videoCallSoftware,
+      luogo: submission.value.sede,
     },
   });
 

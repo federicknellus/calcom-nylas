@@ -38,6 +38,7 @@ interface iAppProps {
   description: string;
   duration: number;
   callProvider: string;
+  luogo: string;
 }
 
 type Platform = "Zoom Meeting" | "Google Meet" | "Microsoft Teams";
@@ -49,6 +50,7 @@ export function EditEventTypeForm({
   url,
   callProvider,
   id,
+  luogo,
 }: iAppProps) {
   const [lastResult, action] = useActionState(EditEventTypeAction, undefined);
   const [form, fields] = useForm({
@@ -127,7 +129,16 @@ export function EditEventTypeForm({
                 {fields.description.errors}
               </p>
             </div>
-
+            <div className="flex flex-col gap-y-2">
+              <Label>Sede</Label>
+              <Input
+                name={fields.sede.name}
+                key={fields.sede.key}
+                defaultValue={luogo}
+                placeholder="Via Roma 1, Milano"
+              />
+              <p className="text-red-500 text-sm">{fields.sede.errors}</p>
+            </div>
             <div className="grid gap-y-2">
               <Label>Durata</Label>
               <Select

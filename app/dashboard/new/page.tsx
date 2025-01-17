@@ -106,7 +106,16 @@ const CreateNewEvent = () => {
                 {fields.description.errors}
               </p>
             </div>
-
+            <div className="flex flex-col gap-y-2">
+              <Label>Sede</Label>
+              <Input
+                name={fields.sede.name}
+                key={fields.sede.key}
+                defaultValue={fields.sede.initialValue}
+                placeholder="Via XX Settembre 4r, Genova"
+              />
+              <p className="text-red-500 text-sm">{fields.sede.errors}</p>
+            </div>
             <div className="grid gap-y-2">
               <Label>Durata</Label>
               <Select

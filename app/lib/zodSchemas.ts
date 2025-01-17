@@ -70,6 +70,10 @@ export const eventTypeSchema = z.object({
     .string()
     .min(3, { message: "Almeno 3 caratteri" })
     .max(150, { message: "Non puoi superare i 150 caratteri" }),
+    sede: z
+    .string()
+    .min(3, { message: "Almeno 3 caratteri" })
+    .max(150, { message: "Non puoi superare i 150 caratteri" }),
   duration: z
     .number()
     .min(1, { message: "La durata minima è di 1 minuto" })
@@ -127,6 +131,10 @@ export function EventTypeServerSchema(options?: {
         })
       ),
     title: z
+      .string()
+      .min(3, { message: "Almeno 3 caratteri" })
+      .max(150, { message: "Non puoi superare i 150 caratteri" }),
+      sede: z
       .string()
       .min(3, { message: "Almeno 3 caratteri" })
       .max(150, { message: "Non puoi superare i 150 caratteri" }),

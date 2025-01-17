@@ -15,6 +15,7 @@ async function getData(eventTypeId: string) {
       url: true,
       id: true,
       videoCallSoftware: true,
+      luogo: true,
     },
   });
 
@@ -42,6 +43,7 @@ const EditEventTypePage = async ({
       key={data.id}
       id={data.id}
       callProvider={data.videoCallSoftware}
+      luogo={data.luogo}
     />
 
   );
