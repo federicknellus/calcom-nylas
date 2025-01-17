@@ -3,6 +3,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import prisma from "./lib/db";
 import { requireUser } from "./lib/hooks";
+import { toast } from "sonner"
 import {
   aboutSettingsSchema,
   EventTypeServerSchema,
@@ -14,6 +15,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
+import { promise } from "zod";
 
 interface Configuration {
   data: {
@@ -361,27 +363,34 @@ export async function updateEventTypeStatusAction(
   }
 }
 
-export async function updateAvailabilityAction(formData: FormData):Promise<void> {
-  const session = await requireUser();
+type UpdateAvailabilityResult = {
+  status: "success" | "error";
+  message: string;
+};
 
-  if (!session.user) {
-    throw new Error("Utente non trovato");
-  }
-
-  const rawData = Object.fromEntries(formData.entries());
-  const availabilityData = Object.keys(rawData)
-    .filter((key) => key.startsWith("id-"))
-    .map((key) => {
-      const id = key.replace("id-", "");
-      return {
-        id,
-        isActive: rawData[`isActive-${id}`] === "on",
-        fromTime: rawData[`fromTime-${id}`] as string,
-        tillTime: rawData[`tillTime-${id}`] as string,
-      };
-    });
-
+export async function updateAvailabilityAction(formData: FormData): Promise<UpdateAvailabilityResult> {
   try {
+    const session = await requireUser();
+
+    if (!session.user) {
+      throw new Error("Utente non trovato");
+    }
+
+    const rawData = Object.fromEntries(formData.entries());
+    const availabilityData = Object.keys(rawData)
+      .filter((key) => key.startsWith("id-"))
+      .map((key) => {
+        const id = key.replace("id-", "");
+        return {
+          id,
+          isActive: rawData[`isActive-${id}`] === "on",
+          fromTime: rawData[`fromTime-${id}`] as string,
+          tillTime: rawData[`tillTime-${id}`] as string,
+        };
+      });
+
+    console.log("Parsed availability data:", availabilityData);
+
     await prisma.$transaction(
       availabilityData.map((item) =>
         prisma.availability.update({
@@ -395,21 +404,25 @@ export async function updateAvailabilityAction(formData: FormData):Promise<void>
       )
     );
 
+    // Revalidate the cache if necessary
     revalidatePath("/dashboard/availability");
-    // return {
-    //   status: "success",
-    //   message: "Disponibilità modificate con successo",
-    // };
+
+    return {
+      status: "success",
+      message: "Disponibilità modificate con successo",
+    };
   } catch (error) {
     console.error("Errore nel modificare le disponibilità:", error);
-    // return {
-    //   status: "error",
-    //   message: "Non siamo riusciti a modificare le disponibilità",
-    // };
+
+    // Ensure a response is always returned
+    return {
+      status: "error",
+      message: "Non siamo riusciti a modificare le disponibilità",
+    };
   }
 }
 
-export async function createMeetingAction(prevState: unknown, formData: FormData) {
+export async function createMeetingAction(prevState: any, formData: FormData) {
   const submission = await parseWithZod(formData, {
     schema: eventDetailsZod,
   });
@@ -489,7 +502,7 @@ export async function createMeetingAction(prevState: unknown, formData: FormData
   if (!booking) {
     return redirect("/dashboard");}
     
-  console.log('Booking Booked on Nylas:', booking);
+  // console.log('Booking Booked on Nylas:', booking);
 
   const bookingSupabase = await prisma.booking.create({
     data: {
@@ -502,7 +515,7 @@ export async function createMeetingAction(prevState: unknown, formData: FormData
     },
   });
 
-  console.log('Booking Booked on Supabase:', bookingSupabase);
+  // console.log('Booking Booked on Supabase:', bookingSupabase);
 
 
   const sendWhatsAppBookingCreation = async () => {
@@ -561,7 +574,7 @@ export async function createMeetingAction(prevState: unknown, formData: FormData
   };
 
   sendWhatsAppBookingCreation();
-
+// console.log('Booking Booked on Nylas:', booking);
   return redirect(`/success`);
 }
 

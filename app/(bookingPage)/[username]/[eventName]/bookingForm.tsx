@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createMeetingAction } from "@/app/actions";
 import { eventDetailsZod } from "@/app/lib/zodSchemas";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 
 interface BookingFormProps {
   eventTypeId: string;
@@ -23,26 +23,26 @@ export function BookingForm({
   eventDate, 
   meetingLength 
 }: BookingFormProps) {
-  const [form, fields] = useForm({
-    // Initial form state
-    id: "booking-form",
-    
-    // Define validation schema
-    onValidate({ formData }) {
-      return parseWithZod(formData, {
-        schema: eventDetailsZod
+
+    const [form, fields] = useForm({
+        id: "booking-form",
+        onValidate({ formData }) {
+          return parseWithZod(formData, {
+            schema: eventDetailsZod
+          });
+        },
+        shouldValidate: "onBlur",
+        shouldRevalidate: "onInput",
       });
-    },
-
-    shouldValidate: "onBlur",
-    shouldRevalidate: "onInput",
-  });
-
+    
+      const [state, formAction] = useActionState(createMeetingAction, null);
+  
   return (
     <form 
       id={form.id}
       className="flex flex-col gap-y-4"
       onSubmit={form.onSubmit}
+      action={formAction}
     >
       <input type="hidden" name="eventTypeId" value={eventTypeId} />
       <input type="hidden" name="username" value={username} />

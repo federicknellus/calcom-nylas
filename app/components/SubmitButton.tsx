@@ -5,8 +5,10 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useFormStatus } from "react-dom";
+import {useEffect, useRef} from "react";
 import GoogleLogo from "@/public/google.svg";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface iAppProps {
   text: string;
@@ -23,18 +25,31 @@ interface iAppProps {
   redirectUrl?: string;
   className?: string;
   handleClickFunction?: () => void;
+  testoToaster?: string
 }
 
-export function SubmitButton({ text, icon, variant, redirectUrl, className, handleClickFunction}: iAppProps) {
+export function SubmitButton({ text, icon, variant, redirectUrl, className, handleClickFunction, testoToaster}: iAppProps) {
   const { pending } = useFormStatus();
+  const wasPending = useRef(pending); // Track previous pending state
 
+  useEffect(() => {
+    // Detect when pending transitions from true to false
+    if (wasPending.current && !pending && testoToaster) {
+      toast.success(testoToaster);
+    }
+    wasPending.current = pending; // Update the ref with the latest state
+  }, [pending]);
   const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
     if (redirectUrl) {
       e.preventDefault();
       router.push(redirectUrl);
+    } else {
+      // Send taost() if pending has come to an end..
     }
+
+    
   };
 
   return (

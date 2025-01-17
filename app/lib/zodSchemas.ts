@@ -164,3 +164,5 @@ export const eventDetailsZod = z.object({
     .string()
     .email("L'email inserita non è valida.")
 });
+
+
