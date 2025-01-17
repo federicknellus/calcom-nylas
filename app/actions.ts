@@ -900,9 +900,9 @@ export async function cancelMeetingActionUser(
 
 
 
-// ################### REPROGRAMMA MEETING PER UTENTE FINALE ###################
 
 export async function rescheduleMeetingAction(formData: FormData) {
+
   
   const booking_id = formData.get("bookingId") as string;
   const config_id = formData.get("configId") as string;
@@ -972,7 +972,14 @@ export async function rescheduleMeetingAction(formData: FormData) {
       },
     });
 
-    const sendWhatsAppBookingRescheduling = async () => {
+
+    // RIPIANIFICA UTENTE FINALE
+
+    const session = await requireUser();
+  
+  if (!session) {
+    
+    const sendWhatsAppBookingReschedulingUtente = async () => {
       const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
       
       // Da correggere
@@ -1032,7 +1039,75 @@ export async function rescheduleMeetingAction(formData: FormData) {
         console.error("Errore nell'inviare il messaggio di prenotazione:", error);
       }
   }
-  sendWhatsAppBookingRescheduling();
+  sendWhatsAppBookingReschedulingUtente();
+
+} else {
+
+  // TODO: cambiare template
+  const sendWhatsAppBookingReschedulingProf = async () => {
+    const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
+    
+    // Da correggere
+    const data = {
+      messaging_product: "whatsapp",
+      to: "39" + (bookingDetails?.contact as string),
+      type: "template",
+      template: {
+        name: "ripgrammazione_effettuata",
+        language: {
+          code: "it",
+        },
+        components: [
+          {
+            type: "header",
+            parameters: [
+              {type: "text", text: bookingDetails?.eventType.user.name}
+            ]
+          },
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: bookingDetails?.name},
+              { type: "text", text: bookingDetails?.eventType?.title },
+              { type: "text", text: bookingDetails?.eventType?.user.name },
+              { type: "text", text: bookingDetails?.eventType?.luogo},
+            ],
+          },
+          {
+            type: "button",
+            sub_type: "url",
+            index: "0",
+            parameters: [
+              {
+                type: "text",
+                text: `${bookingDetails?.eventType?.url}`,
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      console.log("Messaggio di prenotazione inviato con successo:", result);
+    } catch (error) {
+      console.error("Errore nell'inviare il messaggio di prenotazione:", error);
+    }
+}
+sendWhatsAppBookingReschedulingProf();
+
+}
+
 
     if (!rescheduledPrisma) {
       throw new Error(

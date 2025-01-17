@@ -163,6 +163,8 @@ export const eventDetailsZod = z.object({
   email: z
     .string()
     .email("L'email inserita non è valida.")
+    .optional()
+    .transform((value) => value ?? "edoardogronda@zenaesis.it"), 
 });
 
 
