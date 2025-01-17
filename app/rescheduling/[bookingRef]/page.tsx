@@ -381,7 +381,9 @@ if (!userData) {
                 <div className="flex-grow"></div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mt-1">
-                    {eventInformation.user.indirizzo}, {eventInformation.user.citta}
+                  {eventInformation.user.indirizzo
+                      ? `${eventInformation.user.indirizzo}, ${eventInformation.user.citta}`
+                      : eventInformation.user.citta}
                   </p>
                   <p className="text-xs font-medium text-muted-foreground mt-1">
                     {eventInformation.user.telefono}

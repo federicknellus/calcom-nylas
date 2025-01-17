@@ -363,12 +363,11 @@ export async function updateEventTypeStatusAction(
   }
 }
 
-type UpdateAvailabilityResult = {
+
+export async function updateAvailabilityAction(formData: FormData): Promise<{
   status: "success" | "error";
   message: string;
-};
-
-export async function updateAvailabilityAction(formData: FormData): Promise<UpdateAvailabilityResult> {
+}> {
   try {
     const session = await requireUser();
 

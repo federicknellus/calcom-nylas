@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SettingsAction } from "@/app/actions";
 import { aboutSettingsSchema } from "@/app/lib/zodSchemas";
 import {
@@ -22,8 +22,7 @@ import Image from "next/image";
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import { PhoneInput } from '@/components/phone-input';
 
 interface iAppProps {
   fullName: string;
@@ -38,7 +37,15 @@ interface iAppProps {
 export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, nome_studio, telefono }: iAppProps) {
   const [lastResult, action] = useActionState(SettingsAction, undefined);
   const [currentProfileImage, setCurrentProfileImage] = useState(profileImage);
-  const [phoneNumber, setPhoneNumber] = useState(telefono || '');
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    if (telefono) {
+      // Remove spaces from the phone number
+      const formattedPhoneNumber = telefono.replace(/\s+/g, "");
+      setPhone(formattedPhoneNumber);
+    }
+  }, [telefono]);
 
   const [form, fields] = useForm({
     lastResult,
@@ -61,6 +68,7 @@ export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, 
       </CardHeader>
       <form noValidate id={form.id} onSubmit={form.onSubmit} action={action}>
         <CardContent className="flex flex-col gap-y-4">
+          <div className="flex flex-col gap-y-2 w-[50%]">
           <div className="flex flex-col gap-y-2">
             <Label>Nome</Label>
             <Input
@@ -157,16 +165,14 @@ export function SettingsForm({ fullName, email, profileImage, citta, indirizzo, 
           <div className="flex flex-col gap-y-2">
             <Label>Telefono</Label>
             <PhoneInput
-              country={'it'}
-              value={phoneNumber}
-              onChange={(phone) => setPhoneNumber(phone)}
-              inputProps={{
-                name: fields.telefono.name,
-                required: false,
-              }}
-              
+            name={fields.telefono.name}
+            key={fields.telefono.key}
+            placeholder="333 222 9999"
+            value={phone}
+            
             />
             <p className="text-red-500 text-sm">{fields.telefono.errors}</p>
+          </div>
           </div>
         </CardContent>
         <CardFooter>
