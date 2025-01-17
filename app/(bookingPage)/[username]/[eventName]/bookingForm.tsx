@@ -38,7 +38,7 @@ export function BookingForm({
       });
     
       const [state, formAction] = useActionState(createMeetingAction, null);
-  
+      console.log('state',state) //TODO l'ho fixato cosi ma non saprei come fare
   return (
     <form 
       id={form.id}

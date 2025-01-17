@@ -53,7 +53,7 @@ export const ActionChoiceCard = ({
       toast.success("Prenotazione cancellata con successo");
       router.push('/');
     }
-  }, [state]);
+  }, [ state]);
 
   const handleReschedule = () => {
     const params = new URLSearchParams(searchParams);

@@ -3,7 +3,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import prisma from "./lib/db";
 import { requireUser } from "./lib/hooks";
-import { toast } from "sonner"
+
 import {
   aboutSettingsSchema,
   EventTypeServerSchema,
@@ -15,7 +15,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { Availability, ConfigParticipant, EventBooking, SchedulerSettings } from "nylas";
-import { promise } from "zod";
+
 
 interface Configuration {
   data: {
@@ -421,7 +421,7 @@ export async function updateAvailabilityAction(formData: FormData): Promise<{
   }
 }
 
-export async function createMeetingAction(prevState: any, formData: FormData) {
+export async function createMeetingAction(_prevState:unknown, formData: FormData) {
   const submission = await parseWithZod(formData, {
     schema: eventDetailsZod,
   });
@@ -514,7 +514,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
     },
   });
 
-  // console.log('Booking Booked on Supabase:', bookingSupabase);
+  console.log('Booking Booked on Supabase:', bookingSupabase);
 
 
   const sendWhatsAppBookingCreation = async (x:string) => {
@@ -596,7 +596,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
     }
   };
 
-  // sendWhatsAppBookingCreation();
+  sendWhatsAppBookingCreation(getUserData.name as string);
 
   return redirect(`/success`);
 }

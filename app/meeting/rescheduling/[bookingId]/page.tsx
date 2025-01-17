@@ -367,6 +367,7 @@ if (oldBooking?.startTime === undefined || oldBooking?.endTime === undefined) {
               selectedDate={selectedDate}
               userName={userData?.username || "Errore nel caricare i dati"}
               meetingDuration={eventType.duration}
+              daysofWeek={eventType.user.Availability}
             />
           </CardContent>
         </Card>

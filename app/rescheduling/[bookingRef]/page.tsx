@@ -409,6 +409,7 @@ if (!userData) {
               selectedDate={selectedDate}
               userName={userData?.username}
               meetingDuration={eventInformation.duration}
+              daysofWeek={eventInformation.user.Availability}
             />
           </CardContent>
         </Card>

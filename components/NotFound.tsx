@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "../public/logo.png";
 import { SubmitButton } from "@/app/components/SubmitButton";
-import { redirect } from "next/dist/server/api-utils";
+
 
 
 export default function NotFound({error}: {error: string}) {
@@ -21,7 +21,7 @@ export default function NotFound({error}: {error: string}) {
 
           <h1 className="mt-8 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-none self-text-center">
           Siamo spiacenti!{" "}
-            <span className="block text-primary self-text-center">C'è stato un problema...</span>
+            <span className="block text-primary self-text-center">C&apos;è stato un problema...</span>
           </h1>
           <h3 className="text-muted-foreground text-xl">{error}</h3>
       </div>
