@@ -480,7 +480,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
     { month: "long" }
   )} ${startDateTime.getFullYear()}`;
   const ora_whatsapp = `${formattedStartTime}`;
-  let booking = null;
+ let booking = null;
   try{
    booking = await nylas.scheduler.bookings.create({
     requestBody: {
@@ -517,7 +517,8 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
   // console.log('Booking Booked on Supabase:', bookingSupabase);
 
 
-  const sendWhatsAppBookingCreation = async () => {
+  const sendWhatsAppBookingCreation = async (x:string) => {
+
     const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
 
     const data = {
@@ -525,14 +526,24 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
       to: "39" + (partialData.phone as string),
       type: "template",
       template: {
-        name: "event_details_reminder_2",
+        name: "programmazione_effettuata",
         language: {
-          code: "en_US",
+          code: "it",
         },
         components: [
           {
+            type: "header",
+            parameters: [
+              {type: "text", text: x}
+            ]
+          },
+          {
             type: "body",
             parameters: [
+              {
+                type: "text",
+                text: formData.get("name") as string
+              },
               {
                 type: "text",
                 text: eventTypeData?.title,
@@ -541,6 +552,7 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
                 type: "text",
                 text: getUserData?.name,
               },
+              
               {
                 type: "text",
                 text: data_whatsapp,
@@ -548,8 +560,19 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
               {
                 type: "text",
                 text: ora_whatsapp,
-              },//TODO aggiungere il campo per il luogo e per il link di rescheduling e cancellation
+              },
             ],
+          },
+          {
+            type: "button",
+            sub_type: "URL",
+            index: "0",
+            parameters: [
+              {
+                type: "PAYLOAD",
+                payload: "rescheduling",//TODO aggiungere /BOOGING_REF
+              }
+            ]
           },
         ],
       },
@@ -572,8 +595,8 @@ export async function createMeetingAction(prevState: any, formData: FormData) {
     }
   };
 
-  sendWhatsAppBookingCreation();
-// console.log('Booking Booked on Nylas:', booking);
+  // sendWhatsAppBookingCreation();
+
   return redirect(`/success`);
 }
 
@@ -948,7 +971,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
       },
     });
 
-    const sendWhatsAppBookingCancellation = async () => {
+    const sendWhatsAppBookingRescheduling = async () => {
       const url = `https://graph.facebook.com/v21.0/${process.env.NUMERO_WHATSAPP}/messages`;
       
       // Da correggere
@@ -1008,7 +1031,7 @@ export async function rescheduleMeetingAction(formData: FormData) {
         console.error("Errore nell'inviare il messaggio di prenotazione:", error);
       }
   }
-  sendWhatsAppBookingCancellation();
+  sendWhatsAppBookingRescheduling();
 
     if (!rescheduledPrisma) {
       throw new Error(
